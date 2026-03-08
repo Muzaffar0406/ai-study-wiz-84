@@ -47,11 +47,30 @@ serve(async (req) => {
 
     const { fileUrl, fileName, mimeType } = await req.json();
 
-    if (!fileUrl) {
+    if (!fileUrl || typeof fileUrl !== "string") {
       return new Response(
         JSON.stringify({ error: "fileUrl is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // SSRF protection: only allow HTTPS URLs from Supabase storage
+    try {
+      const parsed = new URL(fileUrl);
+      if (parsed.protocol !== "https:") {
+        return new Response(JSON.stringify({ error: "Invalid file URL" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (!parsed.hostname.endsWith(".supabase.co")) {
+        return new Response(JSON.stringify({ error: "Invalid file URL" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid file URL" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
