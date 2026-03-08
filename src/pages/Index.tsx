@@ -29,6 +29,7 @@ const Index = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [studyMinutes, setStudyMinutes] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [goals, setGoals] = useState<Goal[]>([]);
   const timerRef = useRef<HTMLDivElement>(null);
 
   const reloadTasks = () => {
