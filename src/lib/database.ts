@@ -83,7 +83,15 @@ export async function fetchProfile(userId: string) {
   return data;
 }
 
-export async function updateProfile(userId: string, updates: { display_name?: string | null; avatar_url?: string | null }) {
+export async function updateProfile(userId: string, updates: {
+  display_name?: string | null;
+  avatar_url?: string | null;
+  course?: string | null;
+  year?: string | null;
+  institution?: string | null;
+  bio?: string | null;
+  phone?: string | null;
+}) {
   const { error } = await supabase
     .from("profiles")
     .update({ ...updates, updated_at: new Date().toISOString() })

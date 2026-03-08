@@ -7,9 +7,13 @@ import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Camera, Loader2, Save, User } from "lucide-react";
+import { ArrowLeft, Camera, Loader2, Save, User, GraduationCap, Phone, BookOpen } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+
+const YEAR_OPTIONS = ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "Postgraduate", "Other"];
 
 const Profile = () => {
   const { user } = useAuth();
@@ -18,16 +22,26 @@ const Profile = () => {
 
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [course, setCourse] = useState("");
+  const [year, setYear] = useState("");
+  const [institution, setInstitution] = useState("");
+  const [bio, setBio] = useState("");
+  const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    fetchProfile(user.id).then((p) => {
+    fetchProfile(user.id).then((p: any) => {
       if (p) {
         setDisplayName(p.display_name || "");
         setAvatarUrl(p.avatar_url);
+        setCourse(p.course || "");
+        setYear(p.year || "");
+        setInstitution(p.institution || "");
+        setBio(p.bio || "");
+        setPhone(p.phone || "");
       }
       setLoaded(true);
     });
@@ -65,7 +79,14 @@ const Profile = () => {
     if (!user) return;
     setSaving(true);
     try {
-      await updateProfile(user.id, { display_name: displayName.trim() || null });
+      await updateProfile(user.id, {
+        display_name: displayName.trim() || null,
+        course: course.trim() || null,
+        year: year || null,
+        institution: institution.trim() || null,
+        bio: bio.trim() || null,
+        phone: phone.trim() || null,
+      });
       toast({ title: "Profile saved ✅" });
     } catch {
       toast({ title: "Error", description: "Could not save profile.", variant: "destructive" });
@@ -123,7 +144,7 @@ const Profile = () => {
           <p className="text-xs text-muted-foreground">Click to upload (max 2MB)</p>
         </div>
 
-        {/* Form */}
+        {/* Personal Info */}
         <div className="bg-card rounded-2xl p-6 shadow-[var(--shadow-soft)] space-y-5">
           <div className="flex items-center gap-2 pb-3 border-b border-border/50">
             <User className="h-4 w-4 text-primary" />
@@ -131,20 +152,68 @@ const Profile = () => {
           </div>
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="display-name" className="text-xs font-semibold">Display Name</Label>
-              <Input id="display-name" placeholder="Your name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={100} className="rounded-xl" />
+              <Label htmlFor="display-name" className="text-xs font-semibold">Full Name</Label>
+              <Input id="display-name" placeholder="Your full name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={100} className="rounded-xl" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-muted-foreground">Email</Label>
               <Input value={user?.email || ""} disabled className="rounded-xl opacity-60" />
               <p className="text-xs text-muted-foreground">Email cannot be changed here.</p>
             </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="phone" className="text-xs font-semibold">Phone Number</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input id="phone" placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={20} className="rounded-xl pl-9" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="bio" className="text-xs font-semibold">Bio</Label>
+              <Textarea id="bio" placeholder="Tell us a bit about yourself..." value={bio} onChange={(e) => setBio(e.target.value)} maxLength={300} rows={3} className="rounded-xl resize-none" />
+              <p className="text-xs text-muted-foreground text-right">{bio.length}/300</p>
+            </div>
           </div>
-          <Button onClick={handleSave} disabled={saving} className="w-full rounded-xl bg-primary hover:bg-primary/90">
-            {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-            Save Changes
-          </Button>
         </div>
+
+        {/* Academic Info */}
+        <div className="bg-card rounded-2xl p-6 shadow-[var(--shadow-soft)] space-y-5">
+          <div className="flex items-center gap-2 pb-3 border-b border-border/50">
+            <GraduationCap className="h-4 w-4 text-primary" />
+            <h2 className="font-bold text-sm text-foreground">Academic Info</h2>
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="institution" className="text-xs font-semibold">Institution / University</Label>
+              <div className="relative">
+                <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input id="institution" placeholder="e.g. MIT, Stanford, IIT Delhi" value={institution} onChange={(e) => setInstitution(e.target.value)} maxLength={150} className="rounded-xl pl-9" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="course" className="text-xs font-semibold">Course / Major</Label>
+              <Input id="course" placeholder="e.g. Computer Science, Medicine" value={course} onChange={(e) => setCourse(e.target.value)} maxLength={150} className="rounded-xl" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Year of Study</Label>
+              <Select value={year} onValueChange={setYear}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder="Select your year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {YEAR_OPTIONS.map(y => (
+                    <SelectItem key={y} value={y}>{y}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        {/* Save */}
+        <Button onClick={handleSave} disabled={saving} className="w-full rounded-xl bg-primary hover:bg-primary/90 h-11">
+          {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+          Save Changes
+        </Button>
       </div>
     </div>
   );
