@@ -86,7 +86,7 @@ const Index = () => {
     return m > 0 ? `${h}h ${m}m` : `${h}h`;
   };
 
-  const completionRate = tasks.length ? `${Math.round((completedTasks / tasks.length) * 100)}%` : "0%";
+  const completionRate = todayTasks.length ? `${Math.round((completedTasks / todayTasks.length) * 100)}%` : "0%";
 
   return (
     <div className="min-h-screen bg-background">
