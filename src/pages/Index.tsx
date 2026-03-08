@@ -130,7 +130,7 @@ const Index = () => {
                 <Target className="h-6 w-6 text-primary" />
                 Today's Focus
               </h3>
-              <Button variant="ghost" size="sm">View All</Button>
+              <AddTaskDialog onTaskAdded={reloadTasks} />
             </div>
             <div className="space-y-3">
               {tasks.length === 0 && (
