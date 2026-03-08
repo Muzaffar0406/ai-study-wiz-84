@@ -42,6 +42,7 @@ const Notes = () => {
   const [content, setContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [extracting, setExtracting] = useState(false);
 
   // Summarizing state
   const [summarizingId, setSummarizingId] = useState<string | null>(null);
