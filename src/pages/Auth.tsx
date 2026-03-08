@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BookOpen, Mail, Lock, User, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -53,30 +54,27 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4 relative">
+      {/* Theme toggle */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+
+      <div className="w-full max-w-sm space-y-8">
         {/* Logo */}
-        <div className="text-center space-y-2">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto">
-            <BookOpen className="h-8 w-8 text-primary-foreground" />
+        <div className="text-center space-y-3">
+          <div className="h-12 w-12 rounded-2xl bg-primary flex items-center justify-center mx-auto shadow-lg">
+            <BookOpen className="h-7 w-7 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            StudyPlanner AI
-          </h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold text-foreground">StudyPlanner AI</h1>
+          <p className="text-sm text-muted-foreground">
             {isLogin ? "Welcome back! Sign in to continue." : "Create your account to get started."}
           </p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-card border border-border rounded-2xl p-8 shadow-lg space-y-6">
-          {/* Google Sign In */}
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full gap-2 h-11"
-            onClick={handleGoogleSignIn}
-          >
+        <div className="bg-card rounded-2xl p-7 shadow-[var(--shadow-medium)] space-y-5">
+          <Button type="button" variant="outline" className="w-full gap-2 h-11 rounded-xl" onClick={handleGoogleSignIn}>
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -87,9 +85,7 @@ export default function Auth() {
           </Button>
 
           <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border" />
-            </div>
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-card px-2 text-muted-foreground">or</span>
             </div>
@@ -97,58 +93,29 @@ export default function Auth() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="name" className="text-xs font-semibold">Full Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="Your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="pl-10"
-                    maxLength={100}
-                  />
+                  <Input id="name" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} className="pl-10 rounded-xl" maxLength={100} />
                 </div>
               </div>
             )}
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-xs font-semibold">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  maxLength={255}
-                  required
-                />
+                <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 rounded-xl" maxLength={255} required />
               </div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-xs font-semibold">Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10"
-                  minLength={6}
-                  required
-                />
+                <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 rounded-xl" minLength={6} required />
               </div>
             </div>
-
-            <Button type="submit" className="w-full h-11 bg-primary" disabled={loading}>
+            <Button type="submit" className="w-full h-11 rounded-xl bg-primary hover:bg-primary/90" disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {isLogin ? "Sign In" : "Create Account"}
             </Button>
@@ -156,11 +123,7 @@ export default function Auth() {
 
           <p className="text-center text-sm text-muted-foreground">
             {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-primary font-medium hover:underline"
-            >
+            <button type="button" onClick={() => setIsLogin(!isLogin)} className="text-primary font-semibold hover:underline">
               {isLogin ? "Sign up" : "Sign in"}
             </button>
           </p>
