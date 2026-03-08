@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Send, X, Sparkles, Loader2 } from "lucide-react";
+import { Bot, Send, X, Sparkles, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
 import { streamChat, type ChatMessage } from "@/lib/streamChat";
+import { fetchChatMessages, saveChatMessage, clearChatMessages } from "@/lib/database";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 
 const SUGGESTIONS = [
@@ -15,33 +17,46 @@ const SUGGESTIONS = [
 ];
 
 export function AIChatBot() {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Load chat history when opened
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (isOpen && !loaded && user) {
+      fetchChatMessages()
+        .then((msgs) => {
+          setMessages(msgs.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })));
+          setLoaded(true);
+        })
+        .catch(console.error);
     }
+  }, [isOpen, loaded, user]);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
-    }
+    if (isOpen && inputRef.current) inputRef.current.focus();
   }, [isOpen]);
 
   const sendMessage = async (content: string) => {
-    if (!content.trim() || isLoading) return;
+    if (!content.trim() || isLoading || !user) return;
 
     const userMsg: ChatMessage = { role: "user", content: content.trim() };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     setInput("");
     setIsLoading(true);
+
+    // Save user message
+    saveChatMessage({ user_id: user.id, role: "user", content: userMsg.content }).catch(console.error);
 
     let assistantContent = "";
 
@@ -50,9 +65,7 @@ export function AIChatBot() {
       setMessages((prev) => {
         const last = prev[prev.length - 1];
         if (last?.role === "assistant") {
-          return prev.map((m, i) =>
-            i === prev.length - 1 ? { ...m, content: assistantContent } : m
-          );
+          return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantContent } : m));
         }
         return [...prev, { role: "assistant", content: assistantContent }];
       });
@@ -62,7 +75,13 @@ export function AIChatBot() {
       await streamChat({
         messages: updatedMessages,
         onDelta: upsertAssistant,
-        onDone: () => setIsLoading(false),
+        onDone: () => {
+          setIsLoading(false);
+          // Save assistant message
+          if (assistantContent) {
+            saveChatMessage({ user_id: user.id, role: "assistant", content: assistantContent }).catch(console.error);
+          }
+        },
         onError: (error) => {
           setIsLoading(false);
           toast({ title: "AI Error", description: error, variant: "destructive" });
@@ -74,6 +93,15 @@ export function AIChatBot() {
     }
   };
 
+  const handleClear = async () => {
+    try {
+      await clearChatMessages();
+      setMessages([]);
+    } catch {
+      toast({ title: "Error", description: "Could not clear chat history.", variant: "destructive" });
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     sendMessage(input);
@@ -81,31 +109,32 @@ export function AIChatBot() {
 
   return (
     <>
-      {/* Floating Button */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-8 right-8 h-16 w-16 rounded-full bg-gradient-to-r from-accent to-accent-glow shadow-lg hover:shadow-xl hover:scale-110 transition-all animate-float z-50"
         size="icon"
       >
-        {isOpen ? (
-          <X className="h-6 w-6 text-accent-foreground" />
-        ) : (
-          <Bot className="h-6 w-6 text-accent-foreground" />
-        )}
+        {isOpen ? <X className="h-6 w-6 text-accent-foreground" /> : <Bot className="h-6 w-6 text-accent-foreground" />}
       </Button>
 
-      {/* Chat Panel */}
       {isOpen && (
         <div className="fixed bottom-28 right-8 w-[380px] max-h-[560px] bg-card border border-border rounded-2xl shadow-xl flex flex-col z-50 animate-scale-in overflow-hidden">
           {/* Header */}
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-border bg-gradient-to-r from-primary/10 to-accent/10">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-primary-foreground" />
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-gradient-to-r from-primary/10 to-accent/10">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-foreground">Study Assistant</h3>
+                <p className="text-xs text-muted-foreground">Powered by AI</p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-bold text-sm text-foreground">Study Assistant</h3>
-              <p className="text-xs text-muted-foreground">Powered by AI</p>
-            </div>
+            {messages.length > 0 && (
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleClear} title="Clear chat">
+                <Trash2 className="h-4 w-4 text-muted-foreground" />
+              </Button>
+            )}
           </div>
 
           {/* Messages */}
@@ -131,10 +160,7 @@ export function AIChatBot() {
               )}
 
               {messages.map((msg, i) => (
-                <div
-                  key={i}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
+                <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div
                     className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
                       msg.role === "user"
@@ -174,12 +200,7 @@ export function AIChatBot() {
               maxLength={500}
               disabled={isLoading}
             />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={!input.trim() || isLoading}
-              className="h-9 w-9 rounded-xl bg-primary hover:bg-primary/90"
-            >
+            <Button type="submit" size="icon" disabled={!input.trim() || isLoading} className="h-9 w-9 rounded-xl bg-primary hover:bg-primary/90">
               <Send className="h-4 w-4" />
             </Button>
           </form>
