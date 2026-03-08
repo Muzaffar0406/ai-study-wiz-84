@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSidebarState } from "@/hooks/useSidebarState";
 import { useAuth } from "@/hooks/useAuth";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AIChatBot } from "@/components/AIChatBot";
