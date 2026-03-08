@@ -1,10 +1,14 @@
 import { useState } from "react";
+import { format } from "date-fns";
+import { CalendarIcon, Plus, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Loader2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { upsertTask } from "@/lib/database";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
@@ -13,9 +17,10 @@ interface AddTaskDialogProps {
   onTaskAdded: () => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  defaultDate?: Date;
 }
 
-export function AddTaskDialog({ onTaskAdded, open: controlledOpen, onOpenChange }: AddTaskDialogProps) {
+export function AddTaskDialog({ onTaskAdded, open: controlledOpen, onOpenChange, defaultDate }: AddTaskDialogProps) {
   const { user } = useAuth();
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = controlledOpen ?? internalOpen;
@@ -24,14 +29,22 @@ export function AddTaskDialog({ onTaskAdded, open: controlledOpen, onOpenChange 
   const [title, setTitle] = useState("");
   const [subject, setSubject] = useState("");
   const [priority, setPriority] = useState<"high" | "medium" | "low">("medium");
+  const [dueDate, setDueDate] = useState<Date | undefined>(defaultDate);
   const [dueTime, setDueTime] = useState("");
 
   const reset = () => {
     setTitle("");
     setSubject("");
     setPriority("medium");
+    setDueDate(undefined);
     setDueTime("");
   };
+
+  // Sync defaultDate when it changes
+  const prevDefaultDate = defaultDate?.toISOString();
+  if (isOpen && defaultDate && prevDefaultDate !== dueDate?.toISOString() && !dueDate) {
+    setDueDate(defaultDate);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +57,7 @@ export function AddTaskDialog({ onTaskAdded, open: controlledOpen, onOpenChange 
         title: title.trim(),
         subject: subject.trim(),
         priority,
+        due_date: dueDate ? format(dueDate, "yyyy-MM-dd") : null,
         due_time: dueTime.trim() || null,
       });
       toast({ title: "Task added ✅", description: title.trim() });
@@ -58,7 +72,7 @@ export function AddTaskDialog({ onTaskAdded, open: controlledOpen, onOpenChange 
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={(open) => { setOpen(open); if (!open) reset(); }}>
       <DialogTrigger asChild>
         <Button className="gap-2 bg-primary">
           <Plus className="h-4 w-4" />
@@ -91,28 +105,53 @@ export function AddTaskDialog({ onTaskAdded, open: controlledOpen, onOpenChange 
               maxLength={100}
             />
           </div>
+          <div className="space-y-2">
+            <Label>Priority</Label>
+            <Select value={priority} onValueChange={(v) => setPriority(v as "high" | "medium" | "low")}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="high">🔴 High</SelectItem>
+                <SelectItem value="medium">🟡 Medium</SelectItem>
+                <SelectItem value="low">🟢 Low</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Priority</Label>
-              <Select value={priority} onValueChange={(v) => setPriority(v as "high" | "medium" | "low")}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Due Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !dueDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dueDate ? format(dueDate, "PPP") : <span>Pick date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dueDate}
+                    onSelect={setDueDate}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="task-due">Due Time</Label>
+              <Label htmlFor="task-due-time">Due Time</Label>
               <Input
-                id="task-due"
-                placeholder="e.g. 2:00 PM"
+                id="task-due-time"
+                type="time"
                 value={dueTime}
                 onChange={(e) => setDueTime(e.target.value)}
-                maxLength={50}
               />
             </div>
           </div>
