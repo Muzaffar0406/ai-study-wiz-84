@@ -4,6 +4,7 @@ import { QuickActionButton } from "@/components/QuickActionButton";
 import { TaskCard } from "@/components/TaskCard";
 import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { AIChatBot } from "@/components/AIChatBot";
+import { AddTaskDialog } from "@/components/AddTaskDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchTasks, toggleTaskCompleted, fetchProfile } from "@/lib/database";
 import { 
@@ -19,9 +20,13 @@ const Index = () => {
   const [tasks, setTasks] = useState<DbTask[]>([]);
   const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
 
+  const reloadTasks = () => {
+    fetchTasks().then(setTasks).catch(console.error);
+  };
+
   useEffect(() => {
     if (!user) return;
-    fetchTasks().then(setTasks).catch(console.error);
+    reloadTasks();
     fetchProfile(user.id).then(setProfile).catch(console.error);
   }, [user]);
 
@@ -125,7 +130,7 @@ const Index = () => {
                 <Target className="h-6 w-6 text-primary" />
                 Today's Focus
               </h3>
-              <Button variant="ghost" size="sm">View All</Button>
+              <AddTaskDialog onTaskAdded={reloadTasks} />
             </div>
             <div className="space-y-3">
               {tasks.length === 0 && (
