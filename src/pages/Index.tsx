@@ -8,6 +8,7 @@ import { AddTaskDialog } from "@/components/AddTaskDialog";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useSidebarState } from "@/hooks/useSidebarState";
 import { fetchTasks, toggleTaskCompleted, deleteTask, fetchProfile, fetchTodayStudyStats, fetchStudyStreak } from "@/lib/database";
 import { 
   CheckSquare, Clock, Flame, Timer, Plus, Bot, Target, TrendingUp
