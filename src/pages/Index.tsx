@@ -20,6 +20,7 @@ import type { DbTask } from "@/lib/database";
 
 const Index = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { collapsed } = useSidebarState();
   const [tasks, setTasks] = useState<DbTask[]>([]);
