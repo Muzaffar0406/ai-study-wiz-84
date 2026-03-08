@@ -37,16 +37,14 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
   ];
 
   const handleNav = (item: typeof navItems[0]) => {
-    if (item.action) {
-      item.action();
-    } else if (item.path) {
+    if (item.path) {
       navigate(item.path);
     }
     if (isMobile) setMobileOpen(false);
   };
 
   const NavButton = ({ item }: { item: typeof navItems[0] }) => {
-    const isActive = item.path && location.pathname === item.path && !item.action;
+    const isActive = item.path && location.pathname === item.path;
     const btn = (
       <button
         onClick={() => handleNav(item)}
