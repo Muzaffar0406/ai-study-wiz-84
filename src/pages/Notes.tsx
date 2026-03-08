@@ -42,6 +42,7 @@ function getFileIcon(fileName: string | null) {
 const Notes = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  const { collapsed } = useSidebarState();
   const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [notes, setNotes] = useState<Note[]>([]);
