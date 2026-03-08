@@ -11,11 +11,15 @@ import { toast } from "@/hooks/use-toast";
 
 interface AddTaskDialogProps {
   onTaskAdded: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function AddTaskDialog({ onTaskAdded }: AddTaskDialogProps) {
+export function AddTaskDialog({ onTaskAdded, open: controlledOpen, onOpenChange }: AddTaskDialogProps) {
   const { user } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = controlledOpen ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [subject, setSubject] = useState("");
@@ -54,7 +58,7 @@ export function AddTaskDialog({ onTaskAdded }: AddTaskDialogProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="gap-2 bg-primary">
           <Plus className="h-4 w-4" />

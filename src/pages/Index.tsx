@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { StatCard } from "@/components/StatCard";
 import { QuickActionButton } from "@/components/QuickActionButton";
 import { TaskCard } from "@/components/TaskCard";
@@ -19,6 +19,9 @@ const Index = () => {
   const { user, signOut } = useAuth();
   const [tasks, setTasks] = useState<DbTask[]>([]);
   const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
+  const [addTaskOpen, setAddTaskOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const timerRef = useRef<HTMLDivElement>(null);
 
   const reloadTasks = () => {
     fetchTasks().then(setTasks).catch(console.error);
@@ -125,9 +128,9 @@ const Index = () => {
         <div className="space-y-4">
           <h3 className="text-2xl font-bold">Quick Actions</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <QuickActionButton icon={Timer} label="Start Study Timer" onClick={() => {}} variant="primary" />
-            <QuickActionButton icon={Plus} label="Add New Task" onClick={() => {}} variant="accent" />
-            <QuickActionButton icon={Bot} label="Ask AI Assistant" onClick={() => {}} variant="success" />
+            <QuickActionButton icon={Timer} label="Start Study Timer" onClick={() => timerRef.current?.scrollIntoView({ behavior: "smooth" })} variant="primary" />
+            <QuickActionButton icon={Plus} label="Add New Task" onClick={() => setAddTaskOpen(true)} variant="accent" />
+            <QuickActionButton icon={Bot} label="Ask AI Assistant" onClick={() => setChatOpen(true)} variant="success" />
           </div>
         </div>
 
@@ -139,7 +142,7 @@ const Index = () => {
                 <Target className="h-6 w-6 text-primary" />
                 Today's Focus
               </h3>
-              <AddTaskDialog onTaskAdded={reloadTasks} />
+              <AddTaskDialog onTaskAdded={reloadTasks} open={addTaskOpen} onOpenChange={setAddTaskOpen} />
             </div>
             <div className="space-y-3">
               {tasks.length === 0 && (
@@ -161,7 +164,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4" ref={timerRef}>
             <h3 className="text-2xl font-bold">Focus Timer</h3>
             <PomodoroTimer />
           </div>
@@ -179,14 +182,14 @@ const Index = () => {
                 Based on your study patterns, try using the Pomodoro technique with 25-minute focus sessions. 
                 Your peak productivity time is between 2-4 PM - schedule your hardest tasks then!
               </p>
-              <Button variant="outline" className="mt-4">Get More AI Insights</Button>
+              <Button variant="outline" className="mt-4" onClick={() => setChatOpen(true)}>Get More AI Insights</Button>
             </div>
           </div>
         </div>
       </div>
 
       {/* AI Chat Assistant */}
-      <AIChatBot />
+      <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );
 };
