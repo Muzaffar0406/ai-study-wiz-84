@@ -8,6 +8,7 @@ import { AddTaskDialog } from "@/components/AddTaskDialog";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useSidebarState } from "@/hooks/useSidebarState";
 import { fetchTasks, toggleTaskCompleted, deleteTask, fetchProfile, fetchTodayStudyStats, fetchStudyStreak } from "@/lib/database";
 import { 
   CheckSquare, Clock, Flame, Timer, Plus, Bot, Target, TrendingUp
@@ -17,6 +18,7 @@ import type { DbTask } from "@/lib/database";
 const Index = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  const { collapsed } = useSidebarState();
   const [tasks, setTasks] = useState<DbTask[]>([]);
   const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
   const [addTaskOpen, setAddTaskOpen] = useState(false);
@@ -81,7 +83,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <AppSidebar displayName={displayName} avatarUrl={avatarUrl} onAIClick={() => setChatOpen(true)} />
 
-      <main className={`min-h-screen ${isMobile ? '' : 'ml-[240px]'}`}>
+      <main className={`min-h-screen transition-all duration-300 ${isMobile ? '' : collapsed ? 'ml-[68px]' : 'ml-[240px]'}`}>
         {/* Top bar */}
         <header className={`sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 py-4 ${isMobile ? 'px-4 pt-14' : 'px-8'}`}>
           <div className="flex items-center justify-between gap-4">
