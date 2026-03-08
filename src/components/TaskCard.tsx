@@ -17,7 +17,7 @@ interface TaskCardProps {
 }
 
 export const TaskCard = ({ 
-  id, title, subject, priority, dueTime, completed, onToggle, onDelete
+  id, title, subject, priority, dueDate, dueTime, completed, onToggle, onDelete
 }: TaskCardProps) => {
   const priorityConfig = {
     high: { color: "bg-destructive/10 text-destructive border-destructive/20", dot: "bg-destructive" },
