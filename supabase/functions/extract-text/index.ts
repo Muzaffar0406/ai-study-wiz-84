@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -30,8 +31,8 @@ serve(async (req) => {
     // Fetch the file and convert to base64
     const fileResp = await fetch(fileUrl);
     if (!fileResp.ok) throw new Error("Failed to fetch file");
-    const fileBytes = await fileResp.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(fileBytes)));
+    const fileBytes = new Uint8Array(await fileResp.arrayBuffer());
+    const base64 = base64Encode(fileBytes);
 
     const mediaType = mimeType || "application/octet-stream";
 
