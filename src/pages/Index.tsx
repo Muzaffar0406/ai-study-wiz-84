@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { StatCard } from "@/components/StatCard";
 import { QuickActionButton } from "@/components/QuickActionButton";
 import { TaskCard } from "@/components/TaskCard";
@@ -16,6 +17,7 @@ import type { DbTask } from "@/lib/database";
 
 const Index = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<DbTask[]>([]);
   const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
   const [addTaskOpen, setAddTaskOpen] = useState(false);
@@ -86,12 +88,14 @@ const Index = () => {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <Avatar className="h-8 w-8 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
-              <AvatarImage src={avatarUrl || undefined} alt={displayName} />
-              <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground text-xs font-bold">
-                {displayName.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <button onClick={() => navigate("/profile")} className="cursor-pointer rounded-full" title="Profile settings">
+              <Avatar className="h-8 w-8 ring-2 ring-primary/20 ring-offset-2 ring-offset-background hover:ring-primary/40 transition-all">
+                <AvatarImage src={avatarUrl || undefined} alt={displayName} />
+                <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground text-xs font-bold">
+                  {displayName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </button>
             <span className="text-sm font-medium text-foreground hidden sm:inline">{displayName}</span>
             <Button variant="ghost" size="icon" onClick={signOut} title="Sign out" className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground">
               <LogOut className="h-4 w-4" />
