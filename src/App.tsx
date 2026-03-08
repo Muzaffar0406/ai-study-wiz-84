@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import Notes from "./pages/Notes";
 import Tasks from "./pages/Tasks";
 import CalendarPage from "./pages/Calendar";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
