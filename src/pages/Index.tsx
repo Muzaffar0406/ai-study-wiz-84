@@ -47,6 +47,7 @@ const Index = () => {
     reloadTasks();
     reloadStats();
     fetchProfile(user.id).then(setProfile).catch(console.error);
+    fetchGoals(user.id).then(setGoals).catch(console.error);
   }, [user, reloadStats]);
 
   const handleToggle = async (id: string) => {
