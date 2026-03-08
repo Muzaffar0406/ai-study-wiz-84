@@ -17,7 +17,7 @@ Your capabilities:
 - Quiz students on topics they're studying
 - Create study schedules and plans
 - Suggest resources for learning
-- Give personalized advice based on the student's current tasks and workload
+- Give personalized advice based on the student's actual data
 
 Guidelines:
 - Keep responses concise but helpful (aim for 2-4 paragraphs max unless explaining a complex topic)
@@ -26,7 +26,147 @@ Guidelines:
 - If asked about topics outside studying/academics, gently redirect to study-related help
 - Use emojis sparingly for warmth 📚
 - When suggesting tasks, be specific and actionable
-- Reference the student's actual tasks when relevant to give personalized advice`;
+- ALWAYS reference the student's actual tasks, deadlines, study sessions, notes, and goals when giving advice
+- Prioritize tasks by deadline urgency and priority level
+- When asked "what should I study/do", analyze their pending tasks, upcoming deadlines, study gaps, and goals to give specific recommendations`;
+
+function getSupabaseClient(authHeader: string) {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "https://klblwcqsxiagerzhzamj.supabase.co";
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ||
+    Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ||
+    Deno.env.get("SB_ANON_KEY") ||
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsYmx3Y3FzeGlhZ2Vyemh6YW1qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0MDMxODEsImV4cCI6MjA3Njk3OTE4MX0.kZQpjX8D8SvuWMNz2i20qzWji9pm74IOoHlPdc4Zzrw";
+
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } },
+  });
+}
+
+async function buildStudentContext(authHeader: string): Promise<string> {
+  try {
+    const supabase = getSupabaseClient(authHeader);
+    const now = new Date();
+
+    // Fetch all data in parallel
+    const [tasksRes, sessionsRes, notesRes, goalsRes, flashcardsRes] = await Promise.all([
+      supabase
+        .from("tasks")
+        .select("title, subject, priority, due_date, due_time, completed")
+        .order("created_at", { ascending: false })
+        .limit(50),
+      supabase
+        .from("study_sessions")
+        .select("duration_minutes, session_type, started_at, completed_at")
+        .not("completed_at", "is", null)
+        .gte("started_at", new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString())
+        .order("started_at", { ascending: false })
+        .limit(50),
+      supabase
+        .from("notes")
+        .select("title, content, summary, created_at, updated_at")
+        .order("updated_at", { ascending: false })
+        .limit(20),
+      supabase
+        .from("goals")
+        .select("type, title, target_value, current_value, deadline")
+        .order("created_at", { ascending: false })
+        .limit(20),
+      supabase
+        .from("flashcards")
+        .select("front, back, next_review, repetitions, ease_factor")
+        .lte("next_review", now.toISOString())
+        .order("next_review", { ascending: true })
+        .limit(20),
+    ]);
+
+    const sections: string[] = [];
+
+    // ── Tasks ──
+    const tasks = tasksRes.data || [];
+    if (tasks.length > 0) {
+      const pending = tasks.filter((t: any) => !t.completed);
+      const completed = tasks.filter((t: any) => t.completed);
+
+      const formatTask = (t: any) => {
+        let line = `- [${t.priority.toUpperCase()}] "${t.title}" (${t.subject || "No subject"})`;
+        if (t.due_date) line += ` — due: ${t.due_date}`;
+        if (t.due_time) line += ` at ${t.due_time}`;
+        return line;
+      };
+
+      // Sort pending by due date (soonest first)
+      pending.sort((a: any, b: any) => {
+        if (!a.due_date && !b.due_date) return 0;
+        if (!a.due_date) return 1;
+        if (!b.due_date) return -1;
+        return a.due_date.localeCompare(b.due_date);
+      });
+
+      sections.push(`📋 PENDING TASKS (${pending.length}):
+${pending.map(formatTask).join("\n") || "None"}
+
+✅ COMPLETED TASKS (${completed.length}):
+${completed.slice(0, 10).map((t: any) => `- "${t.title}" (${t.subject || "No subject"})`).join("\n") || "None"}`);
+    }
+
+    // ── Study Sessions (last 7 days) ──
+    const sessions = sessionsRes.data || [];
+    if (sessions.length > 0) {
+      const totalMinutes = sessions.reduce((sum: number, s: any) => sum + (s.duration_minutes || 0), 0);
+      const totalHours = (totalMinutes / 60).toFixed(1);
+
+      // Today's sessions
+      const todayStart = new Date(now);
+      todayStart.setHours(0, 0, 0, 0);
+      const todaySessions = sessions.filter((s: any) => new Date(s.started_at) >= todayStart);
+      const todayMinutes = todaySessions.reduce((sum: number, s: any) => sum + (s.duration_minutes || 0), 0);
+
+      sections.push(`⏱️ STUDY SESSIONS (last 7 days):
+- Total: ${totalHours} hours across ${sessions.length} sessions
+- Today: ${todayMinutes} minutes across ${todaySessions.length} sessions
+- Average per day: ${(totalMinutes / 7).toFixed(0)} minutes`);
+    } else {
+      sections.push(`⏱️ STUDY SESSIONS (last 7 days): No sessions recorded`);
+    }
+
+    // ── Notes ──
+    const notes = notesRes.data || [];
+    if (notes.length > 0) {
+      sections.push(`📝 RECENT NOTES (${notes.length}):
+${notes.slice(0, 10).map((n: any) => {
+        let line = `- "${n.title}"`;
+        if (n.summary) line += ` — Summary: ${n.summary.slice(0, 100)}`;
+        return line;
+      }).join("\n")}`);
+    }
+
+    // ── Goals ──
+    const goals = goalsRes.data || [];
+    if (goals.length > 0) {
+      sections.push(`🎯 GOALS:
+${goals.map((g: any) => {
+        const progress = g.target_value > 0 ? Math.round((g.current_value / g.target_value) * 100) : 0;
+        let line = `- "${g.title}" (${g.type}): ${g.current_value}/${g.target_value} — ${progress}%`;
+        if (g.deadline) line += ` — deadline: ${g.deadline.split("T")[0]}`;
+        return line;
+      }).join("\n")}`);
+    }
+
+    // ── Due Flashcards ──
+    const flashcards = flashcardsRes.data || [];
+    if (flashcards.length > 0) {
+      sections.push(`🃏 FLASHCARDS DUE FOR REVIEW: ${flashcards.length} cards
+Sample topics: ${flashcards.slice(0, 5).map((f: any) => `"${f.front.slice(0, 50)}"`).join(", ")}`);
+    }
+
+    if (sections.length === 0) return "";
+
+    return `\n\n--- STUDENT'S CURRENT DATA (today is ${now.toISOString().split("T")[0]}) ---\n${sections.join("\n\n")}\n\nUse this data to give personalized, contextual advice. Reference specific tasks, deadlines, study patterns, and goals when relevant. If the student asks what to study or do, analyze urgency (deadlines), priority, study gaps, and goal progress to make specific recommendations.`;
+  } catch (e) {
+    console.error("Failed to fetch student context:", e);
+    return "";
+  }
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -46,50 +186,14 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Fetch user's tasks if authenticated
-    let taskContext = "";
+    // Build rich student context from all data sources
+    let studentContext = "";
     const authHeader = req.headers.get("authorization");
     if (authHeader) {
-      try {
-        const supabaseUrl = Deno.env.get("SUPABASE_URL") || Deno.env.get("SB_URL") || "https://klblwcqsxiagerzhzamj.supabase.co";
-        // List all env vars for debugging
-        const possibleKeys = ["SUPABASE_ANON_KEY", "SUPABASE_PUBLISHABLE_KEY", "SB_ANON_KEY", "SUPABASE_KEY"];
-        let supabaseAnonKey = "";
-        for (const k of possibleKeys) {
-          const v = Deno.env.get(k);
-          if (v) { supabaseAnonKey = v; break; }
-        }
-        if (!supabaseAnonKey) {
-          // Use the publishable anon key directly (it's safe - it's a public key)
-          supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsYmx3Y3FzeGlhZ2Vyemh6YW1qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0MDMxODEsImV4cCI6MjA3Njk3OTE4MX0.kZQpjX8D8SvuWMNz2i20qzWji9pm74IOoHlPdc4Zzrw";
-        }
-        const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-          global: { headers: { Authorization: authHeader } },
-        });
-        const { data: tasks } = await supabase
-          .from("tasks")
-          .select("title, subject, priority, due_time, completed")
-          .order("created_at", { ascending: false })
-          .limit(50);
-
-        if (tasks && tasks.length > 0) {
-          const pending = tasks.filter((t: any) => !t.completed);
-          const completed = tasks.filter((t: any) => t.completed);
-          taskContext = `\n\n--- STUDENT'S CURRENT TASKS ---
-Pending tasks (${pending.length}):
-${pending.map((t: any) => `- [${t.priority.toUpperCase()}] "${t.title}" (${t.subject || "No subject"})${t.due_time ? ` — due: ${t.due_time}` : ""}`).join("\n") || "None"}
-
-Completed tasks (${completed.length}):
-${completed.map((t: any) => `- ✅ "${t.title}" (${t.subject || "No subject"})`).join("\n") || "None"}
-
-Use this task information to give personalized, contextual advice. Reference specific tasks when relevant.`;
-        }
-      } catch (e) {
-        console.error("Failed to fetch tasks:", e);
-      }
+      studentContext = await buildStudentContext(authHeader);
     }
 
-    const systemPrompt = BASE_SYSTEM_PROMPT + taskContext;
+    const systemPrompt = BASE_SYSTEM_PROMPT + studentContext;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
