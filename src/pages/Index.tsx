@@ -6,7 +6,7 @@ import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { AIChatBot } from "@/components/AIChatBot";
 import { AddTaskDialog } from "@/components/AddTaskDialog";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchTasks, toggleTaskCompleted, fetchProfile } from "@/lib/database";
+import { fetchTasks, toggleTaskCompleted, deleteTask, fetchProfile } from "@/lib/database";
 import { 
   CheckSquare, Clock, Flame, Timer, Plus, Bot, BookOpen, Target, Calendar, TrendingUp, LogOut
 } from "lucide-react";
