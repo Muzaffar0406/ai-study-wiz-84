@@ -48,7 +48,7 @@ const Index = () => {
     reloadTasks();
     reloadStats();
     fetchProfile(user.id).then(setProfile).catch(console.error);
-    fetchGoals(user.id).then(g => syncGoalProgress(user.id, g)).then(setGoals).catch(console.error);
+    fetchGoals(user.id).then(g => syncGoalProgress(user.id, g)).then(synced => { setGoals(synced); showGoalReminders(synced, toast); }).catch(console.error);
   }, [user, reloadStats]);
 
   const handleToggle = async (id: string) => {
