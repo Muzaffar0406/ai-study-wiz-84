@@ -211,13 +211,8 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Floating AI Assistant Button */}
-      <Button 
-        className="fixed bottom-8 right-8 h-16 w-16 rounded-full bg-gradient-to-r from-accent to-accent-glow shadow-lg hover:shadow-xl hover:scale-110 transition-all animate-float"
-        size="icon"
-      >
-        <Bot className="h-6 w-6 text-white" />
-      </Button>
+      {/* AI Chat Assistant */}
+      <AIChatBot />
     </div>
   );
 };
