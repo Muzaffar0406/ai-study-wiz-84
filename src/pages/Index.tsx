@@ -16,6 +16,7 @@ import {
   TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AIChatBot } from "@/components/AIChatBot";
 import heroImage from "@/assets/hero-study.jpg";
 
 interface Task {
