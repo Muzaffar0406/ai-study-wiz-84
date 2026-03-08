@@ -118,14 +118,14 @@ export function AIChatBot({ open: controlledOpen, onOpenChange }: AIChatBotProps
     <>
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-8 right-8 h-16 w-16 rounded-full bg-gradient-to-r from-accent to-accent-glow shadow-lg hover:shadow-xl hover:scale-110 transition-all animate-float z-50"
+        className="fixed bottom-6 right-4 sm:bottom-8 sm:right-8 h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-primary shadow-lg hover:shadow-xl hover:scale-110 transition-all animate-float z-50"
         size="icon"
       >
-        {isOpen ? <X className="h-6 w-6 text-accent-foreground" /> : <Bot className="h-6 w-6 text-accent-foreground" />}
+        {isOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" /> : <Bot className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />}
       </Button>
 
       {isOpen && (
-        <div className="fixed bottom-28 right-8 w-[380px] max-h-[560px] bg-card border border-border rounded-2xl shadow-xl flex flex-col z-50 animate-scale-in overflow-hidden">
+        <div className="fixed bottom-24 right-4 sm:bottom-28 sm:right-8 w-[calc(100vw-2rem)] sm:w-[380px] max-h-[70vh] sm:max-h-[560px] bg-card border border-border rounded-2xl shadow-xl flex flex-col z-50 animate-scale-in overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-gradient-to-r from-primary/10 to-accent/10">
             <div className="flex items-center gap-3">
