@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, RotateCcw } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,18 +18,14 @@ export const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const sessionIdRef = useRef(sessionId);
+  const isBreakRef = useRef(isBreak);
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
-    } else if (timeLeft === 0) {
-      handleTimerEnd();
-    }
-    return () => clearInterval(interval);
-  }, [isRunning, timeLeft]);
+  // Keep refs in sync
+  useEffect(() => { sessionIdRef.current = sessionId; }, [sessionId]);
+  useEffect(() => { isBreakRef.current = isBreak; }, [isBreak]);
 
-  const handleTimerEnd = async () => {
+  const handleTimerEnd = useCallback(async () => {
     if (!isBreak && sessionId) {
       try {
         await completeStudySession(sessionId);
