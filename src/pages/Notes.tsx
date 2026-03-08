@@ -474,6 +474,23 @@ const Notes = () => {
                           Re-summarize
                         </Button>
                       )}
+
+                      {/* Generate Flashcards */}
+                      {note.content && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="gap-1 text-xs h-7 text-primary"
+                          disabled={generatingCardsId === note.id}
+                          onClick={() => handleGenerateFlashcards(note)}
+                        >
+                          {generatingCardsId === note.id ? (
+                            <><Loader2 className="h-3 w-3 animate-spin" />Generating...</>
+                          ) : (
+                            <><Layers className="h-3 w-3" />Flashcards</>
+                          )}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 );
