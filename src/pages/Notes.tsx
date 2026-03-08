@@ -11,10 +11,11 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchProfile } from "@/lib/database";
+import { createFlashcardsBatch } from "@/lib/flashcards";
 import ReactMarkdown from "react-markdown";
 import {
   Plus, FileText, Sparkles, Trash2, Upload, Loader2, BookOpen,
-  Download, X, Eye, EyeOff, File, Image as ImageIcon
+  Download, X, Eye, EyeOff, File, Image as ImageIcon, Layers
 } from "lucide-react";
 
 interface Note {
