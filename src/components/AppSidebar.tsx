@@ -5,7 +5,7 @@ import { useSidebarState } from "@/hooks/useSidebarState";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { Home, BookOpen, CheckSquare, Bot, Settings, LogOut, Menu, X, FileText, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Home, BookOpen, CheckSquare, Bot, Settings, LogOut, Menu, X, FileText } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AppSidebarProps {
@@ -26,7 +26,7 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
 
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
-    { icon: CheckSquare, label: "Tasks", path: "/", hash: "tasks" },
+    { icon: CheckSquare, label: "Tasks", path: "/tasks" },
     { icon: FileText, label: "Notes", path: "/notes" },
     { icon: Bot, label: "AI Assistant", action: onAIClick },
     { icon: Settings, label: "Settings", path: "/profile" },
@@ -42,7 +42,7 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
   };
 
   const NavButton = ({ item }: { item: typeof navItems[0] }) => {
-    const isActive = item.path && location.pathname === item.path && !item.hash && !item.action;
+    const isActive = item.path && location.pathname === item.path && !item.action;
     const btn = (
       <button
         onClick={() => handleNav(item)}
@@ -129,21 +129,6 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
       <div className={`p-4 space-y-3 border-t border-[hsl(var(--sidebar-accent))]`}>
         {!collapsed && <ThemeToggle />}
 
-        {/* Toggle button (desktop only) */}
-        {!isMobile && (
-          <button
-            onClick={toggle}
-            className="sidebar-item sidebar-item-inactive w-full"
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {collapsed ? <PanelLeftOpen className="h-[18px] w-[18px] mx-auto" /> : (
-              <>
-                <PanelLeftClose className="h-[18px] w-[18px]" />
-                <span>Collapse</span>
-              </>
-            )}
-          </button>
-        )}
 
         <button
           onClick={() => { signOut(); if (isMobile) setMobileOpen(false); }}
