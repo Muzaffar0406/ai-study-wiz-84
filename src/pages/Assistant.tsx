@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import ReactMarkdown from "react-markdown";
+import { ChatMarkdown } from "@/components/ChatMarkdown";
 import {
   Sparkles, Send, Loader2, Trash2, Bot, Brain,
   BookOpen, Target, Clock, Lightbulb,
@@ -136,9 +136,7 @@ const Assistant = () => {
                     }`}
                   >
                     {msg.role === "assistant" ? (
-                      <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_ul]:space-y-1 [&_ol]:space-y-1">
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
-                      </div>
+                      <ChatMarkdown content={msg.content} />
                     ) : (
                       msg.content
                     )}

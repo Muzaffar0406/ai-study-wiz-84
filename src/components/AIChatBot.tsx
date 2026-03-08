@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Bot, Send, X, Sparkles, Loader2, Trash2, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import ReactMarkdown from "react-markdown";
+import { ChatMarkdown } from "@/components/ChatMarkdown";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -136,9 +136,7 @@ export function AIChatBot({ open: controlledOpen, onOpenChange }: AIChatBotProps
                     }`}
                   >
                     {msg.role === "assistant" ? (
-                      <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
-                      </div>
+                      <ChatMarkdown content={msg.content} />
                     ) : (
                       msg.content
                     )}
