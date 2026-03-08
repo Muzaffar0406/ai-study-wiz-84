@@ -2,7 +2,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, Flag, Trash2 } from "lucide-react";
-import { Card } from "@/components/ui/card";
 
 interface TaskCardProps {
   id: string;
@@ -18,33 +17,42 @@ interface TaskCardProps {
 export const TaskCard = ({ 
   id, title, subject, priority, dueTime, completed, onToggle, onDelete
 }: TaskCardProps) => {
-  const priorityColors = {
-    high: "bg-destructive text-destructive-foreground",
-    medium: "bg-accent text-accent-foreground",
-    low: "bg-success text-success-foreground",
+  const priorityConfig = {
+    high: { color: "bg-destructive/10 text-destructive border-destructive/20", dot: "bg-destructive" },
+    medium: { color: "bg-accent/10 text-accent border-accent/20", dot: "bg-accent" },
+    low: { color: "bg-success/10 text-success border-success/20", dot: "bg-success" },
   };
 
+  const p = priorityConfig[priority];
+
   return (
-    <Card className={`p-4 hover:shadow-md transition-all duration-300 group ${completed ? 'opacity-60' : ''}`}>
-      <div className="flex items-start gap-3">
-        <Checkbox 
-          checked={completed} 
-          onCheckedChange={() => onToggle(id)}
-          className="mt-1"
-        />
-        <div className="flex-1 space-y-2">
-          <h4 className={`font-semibold ${completed ? 'line-through' : ''}`}>
+    <div className={`glass rounded-xl p-4 card-hover group ${completed ? 'opacity-50' : ''} transition-all duration-300`}>
+      <div className="flex items-start gap-4">
+        <div className="pt-0.5">
+          <Checkbox 
+            checked={completed} 
+            onCheckedChange={() => onToggle(id)}
+            className="h-5 w-5 rounded-md border-2 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+          />
+        </div>
+        <div className="flex-1 space-y-2 min-w-0">
+          <h4 className={`font-semibold text-sm leading-tight ${completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
             {title}
           </h4>
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="secondary" className="text-xs">{subject}</Badge>
-            <Badge className={`${priorityColors[priority]} text-xs`}>
-              <Flag className="h-3 w-3 mr-1" />{priority}
+            {subject && (
+              <Badge variant="secondary" className="text-[11px] font-medium px-2 py-0 h-5 rounded-md">
+                {subject}
+              </Badge>
+            )}
+            <Badge variant="outline" className={`${p.color} text-[11px] font-medium px-2 py-0 h-5 rounded-md border`}>
+              <span className={`${p.dot} h-1.5 w-1.5 rounded-full mr-1.5 inline-block`} />
+              {priority}
             </Badge>
             {dueTime && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3" /><span>{dueTime}</span>
-              </div>
+              <span className="flex items-center gap-1 text-[11px] text-muted-foreground font-medium">
+                <Clock className="h-3 w-3" />{dueTime}
+              </span>
             )}
           </div>
         </div>
@@ -52,13 +60,13 @@ export const TaskCard = ({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-all text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
             onClick={() => onDelete(id)}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
         )}
       </div>
-    </Card>
+    </div>
   );
 };
