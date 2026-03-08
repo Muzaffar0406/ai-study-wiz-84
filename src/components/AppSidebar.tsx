@@ -32,21 +32,19 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
     { icon: Layers, label: "Flashcards", path: "/flashcards" },
     { icon: Target, label: "Goals", path: "/goals" },
     { icon: BarChart3, label: "Analytics", path: "/analytics" },
-    { icon: Bot, label: "AI Assistant", action: onAIClick },
+    { icon: Bot, label: "AI Assistant", path: "/assistant" },
     { icon: Settings, label: "Settings", path: "/profile" },
   ];
 
   const handleNav = (item: typeof navItems[0]) => {
-    if (item.action) {
-      item.action();
-    } else if (item.path) {
+    if (item.path) {
       navigate(item.path);
     }
     if (isMobile) setMobileOpen(false);
   };
 
   const NavButton = ({ item }: { item: typeof navItems[0] }) => {
-    const isActive = item.path && location.pathname === item.path && !item.action;
+    const isActive = item.path && location.pathname === item.path;
     const btn = (
       <button
         onClick={() => handleNav(item)}
