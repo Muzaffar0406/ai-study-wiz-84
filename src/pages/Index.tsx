@@ -182,7 +182,7 @@ const Index = () => {
                 Based on your study patterns, try using the Pomodoro technique with 25-minute focus sessions. 
                 Your peak productivity time is between 2-4 PM - schedule your hardest tasks then!
               </p>
-              <Button variant="outline" className="mt-4">Get More AI Insights</Button>
+              <Button variant="outline" className="mt-4" onClick={() => setChatOpen(true)}>Get More AI Insights</Button>
             </div>
           </div>
         </div>
