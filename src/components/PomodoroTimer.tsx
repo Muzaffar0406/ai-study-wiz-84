@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, RotateCcw } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,6 +18,31 @@ export const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const sessionIdRef = useRef(sessionId);
+  const isBreakRef = useRef(isBreak);
+  const onSessionCompleteRef = useRef(onSessionComplete);
+
+  useEffect(() => { sessionIdRef.current = sessionId; }, [sessionId]);
+  useEffect(() => { isBreakRef.current = isBreak; }, [isBreak]);
+  useEffect(() => { onSessionCompleteRef.current = onSessionComplete; }, [onSessionComplete]);
+
+  const handleTimerEnd = useCallback(async () => {
+    if (!isBreakRef.current && sessionIdRef.current) {
+      try {
+        await completeStudySession(sessionIdRef.current);
+        toast({ title: "Focus session complete! 🎉", description: "Great job staying focused." });
+        setSessionId(null);
+        onSessionCompleteRef.current?.();
+      } catch {
+        console.error("Failed to complete session");
+      }
+    }
+    setIsBreak((prev) => {
+      setTimeLeft(prev ? POMODORO_TIME : BREAK_TIME);
+      return !prev;
+    });
+    setIsRunning(false);
+  }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -27,23 +52,7 @@ export const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
       handleTimerEnd();
     }
     return () => clearInterval(interval);
-  }, [isRunning, timeLeft]);
-
-  const handleTimerEnd = async () => {
-    if (!isBreak && sessionId) {
-      try {
-        await completeStudySession(sessionId);
-        toast({ title: "Focus session complete! 🎉", description: "Great job staying focused." });
-        setSessionId(null);
-        onSessionComplete?.();
-      } catch {
-        console.error("Failed to complete session");
-      }
-    }
-    setIsBreak(!isBreak);
-    setTimeLeft(isBreak ? POMODORO_TIME : BREAK_TIME);
-    setIsRunning(false);
-  };
+  }, [isRunning, timeLeft, handleTimerEnd]);
 
   const handleStart = async () => {
     if (!isRunning && !isBreak && !sessionId && user) {

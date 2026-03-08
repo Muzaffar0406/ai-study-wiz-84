@@ -74,8 +74,10 @@ const Index = () => {
 
   const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
-  const incompleteTasks = tasks.filter(t => !t.completed).length;
-  const completedTasks = tasks.filter(t => t.completed).length;
+  const today = new Date().toISOString().split("T")[0];
+  const todayTasks = tasks.filter(t => t.due_date === today || (!t.due_date && !t.completed));
+  const incompleteTasks = todayTasks.filter(t => !t.completed).length;
+  const completedTasks = todayTasks.filter(t => t.completed).length;
 
   const formatStudyTime = (mins: number) => {
     if (mins < 60) return `${mins}m`;
@@ -84,7 +86,7 @@ const Index = () => {
     return m > 0 ? `${h}h ${m}m` : `${h}h`;
   };
 
-  const completionRate = tasks.length ? `${Math.round((completedTasks / tasks.length) * 100)}%` : "0%";
+  const completionRate = todayTasks.length ? `${Math.round((completedTasks / todayTasks.length) * 100)}%` : "0%";
 
   return (
     <div className="min-h-screen bg-background">
@@ -170,14 +172,14 @@ const Index = () => {
                 )}
               </div>
               <div className="space-y-2">
-                {tasks.length === 0 && (
+                {todayTasks.length === 0 && (
                   <div className="bg-card rounded-2xl p-8 sm:p-10 text-center shadow-[var(--shadow-soft)]">
                     <CheckSquare className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-sm font-medium text-muted-foreground">No tasks yet</p>
+                    <p className="text-sm font-medium text-muted-foreground">No tasks for today</p>
                     <p className="text-xs text-muted-foreground mt-1">Click "Add Task" to get started</p>
                   </div>
                 )}
-                {tasks.map((task) => (
+                {todayTasks.map((task) => (
                   <TaskCard
                     key={task.id}
                     id={task.id}

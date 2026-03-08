@@ -248,12 +248,20 @@ const Goals = () => {
   );
 };
 
+const SUMMARY_STYLES: Record<string, { bg: string; text: string }> = {
+  primary: { bg: "bg-primary/10", text: "text-primary" },
+  accent: { bg: "bg-accent/10", text: "text-accent" },
+  success: { bg: "bg-green-500/10", text: "text-green-500" },
+  destructive: { bg: "bg-destructive/10", text: "text-destructive" },
+};
+
 function SummaryCard({ icon: Icon, label, value, color }: { icon: React.ElementType; label: string; value: number; color: string }) {
+  const styles = SUMMARY_STYLES[color] || SUMMARY_STYLES.primary;
   return (
     <div className="bg-card rounded-2xl p-4 shadow-[var(--shadow-soft)] border border-border/50">
       <div className="flex items-center gap-3">
-        <div className={`h-10 w-10 rounded-xl bg-${color}/10 flex items-center justify-center`}>
-          <Icon className={`h-5 w-5 text-${color}`} />
+        <div className={`h-10 w-10 rounded-xl ${styles.bg} flex items-center justify-center`}>
+          <Icon className={`h-5 w-5 ${styles.text}`} />
         </div>
         <div>
           <p className="text-2xl font-bold text-foreground">{value}</p>
