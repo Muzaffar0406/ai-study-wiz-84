@@ -70,9 +70,13 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
       <div className={`${collapsed && !isMobile ? 'p-3' : 'p-5'} space-y-4`}>
         <div className="flex items-center justify-between">
           <div className={`flex items-center gap-3 ${collapsed && !isMobile ? 'justify-center w-full' : ''}`}>
-            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-lg flex-shrink-0">
+            <button
+              onClick={!isMobile ? toggle : undefined}
+              className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-lg flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+              title="Toggle sidebar"
+            >
               <BookOpen className="h-5 w-5 text-primary-foreground" />
-            </div>
+            </button>
             {(!collapsed || isMobile) && <span className="text-lg font-bold text-white">StudyPlanner</span>}
           </div>
           {isMobile && (
