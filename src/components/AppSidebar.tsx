@@ -129,21 +129,6 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
       <div className={`p-4 space-y-3 border-t border-[hsl(var(--sidebar-accent))]`}>
         {!collapsed && <ThemeToggle />}
 
-        {/* Toggle button (desktop only) */}
-        {!isMobile && (
-          <button
-            onClick={toggle}
-            className="sidebar-item sidebar-item-inactive w-full"
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {collapsed ? <PanelLeftOpen className="h-[18px] w-[18px] mx-auto" /> : (
-              <>
-                <PanelLeftClose className="h-[18px] w-[18px]" />
-                <span>Collapse</span>
-              </>
-            )}
-          </button>
-        )}
 
         <button
           onClick={() => { signOut(); if (isMobile) setMobileOpen(false); }}
