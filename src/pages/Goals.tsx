@@ -8,7 +8,7 @@ import { fetchProfile } from "@/lib/database";
 import {
   fetchGoals, createGoal, updateGoalProgress, deleteGoal,
   getGoalProgress, isGoalExpired, isGoalComplete, syncGoalProgress,
-  GOAL_TYPES, type Goal,
+  showGoalReminders, GOAL_TYPES, type Goal,
 } from "@/lib/goals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,6 +61,7 @@ const Goals = () => {
       const data = await fetchGoals(user.id);
       const synced = await syncGoalProgress(user.id, data);
       setGoals(synced);
+      showGoalReminders(synced, toast);
     } catch (err) {
       console.error("Failed to load goals:", err);
     } finally {
