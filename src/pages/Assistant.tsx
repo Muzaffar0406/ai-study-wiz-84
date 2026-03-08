@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import ReactMarkdown from "react-markdown";
+import { ChatMarkdown } from "@/components/ChatMarkdown";
 import {
   Sparkles, Send, Loader2, Trash2, Bot, Brain,
   BookOpen, Target, Clock, Lightbulb,
