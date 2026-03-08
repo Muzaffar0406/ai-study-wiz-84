@@ -16,9 +16,16 @@ const SUGGESTIONS = [
   "Quiz me on a topic",
 ];
 
-export function AIChatBot() {
+interface AIChatBotProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function AIChatBot({ open: controlledOpen, onOpenChange }: AIChatBotProps = {}) {
   const { user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = controlledOpen ?? internalOpen;
+  const setIsOpen = onOpenChange ?? setInternalOpen;
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
