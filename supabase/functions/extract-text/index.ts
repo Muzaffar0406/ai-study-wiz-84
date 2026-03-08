@@ -1,11 +1,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+function uint8ToBase64(bytes: Uint8Array): string {
+  // Avoids "Maximum call stack size exceeded" on large files
+  const chunkSize = 0x8000;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -32,7 +41,7 @@ serve(async (req) => {
     const fileResp = await fetch(fileUrl);
     if (!fileResp.ok) throw new Error("Failed to fetch file");
     const fileBytes = new Uint8Array(await fileResp.arrayBuffer());
-    const base64 = base64Encode(fileBytes);
+    const base64 = uint8ToBase64(fileBytes);
 
     const mediaType = mimeType || "application/octet-stream";
 
