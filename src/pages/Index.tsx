@@ -20,9 +20,13 @@ const Index = () => {
   const [tasks, setTasks] = useState<DbTask[]>([]);
   const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
 
+  const reloadTasks = () => {
+    fetchTasks().then(setTasks).catch(console.error);
+  };
+
   useEffect(() => {
     if (!user) return;
-    fetchTasks().then(setTasks).catch(console.error);
+    reloadTasks();
     fetchProfile(user.id).then(setProfile).catch(console.error);
   }, [user]);
 
