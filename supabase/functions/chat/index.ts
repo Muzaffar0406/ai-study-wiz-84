@@ -52,8 +52,12 @@ serve(async (req) => {
     if (authHeader) {
       try {
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-        const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!;
-        const supabase = createClient(supabaseUrl, supabaseKey, {
+        const supabaseAnonKey = Deno.env.get("SUPABASE_PUBLISHABLE_KEY") || Deno.env.get("SUPABASE_ANON_KEY")!;
+        if (!supabaseUrl || !supabaseAnonKey) {
+          console.error("Missing SUPABASE_URL or key env vars");
+          throw new Error("Missing env vars");
+        }
+        const supabase = createClient(supabaseUrl, supabaseAnonKey, {
           global: { headers: { Authorization: authHeader } },
         });
         const { data: tasks } = await supabase
