@@ -58,7 +58,7 @@ export function AddTaskDialog({ onTaskAdded, open: controlledOpen, onOpenChange 
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="gap-2 bg-primary">
           <Plus className="h-4 w-4" />
