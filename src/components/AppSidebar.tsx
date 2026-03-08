@@ -28,8 +28,9 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
     { icon: Home, label: "Home", path: "/" },
     { icon: CheckSquare, label: "Tasks", path: "/tasks" },
     { icon: CalendarDays, label: "Calendar", path: "/calendar" },
-    { icon: BarChart3, label: "Analytics", path: "/analytics" },
     { icon: FileText, label: "Notes", path: "/notes" },
+    { icon: Layers, label: "Flashcards", path: "/flashcards" },
+    { icon: BarChart3, label: "Analytics", path: "/analytics" },
     { icon: Bot, label: "AI Assistant", action: onAIClick },
     { icon: Settings, label: "Settings", path: "/profile" },
   ];
