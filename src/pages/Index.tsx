@@ -6,7 +6,7 @@ import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { AIChatBot } from "@/components/AIChatBot";
 import { AddTaskDialog } from "@/components/AddTaskDialog";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchTasks, toggleTaskCompleted, fetchProfile } from "@/lib/database";
+import { fetchTasks, toggleTaskCompleted, deleteTask, fetchProfile } from "@/lib/database";
 import { 
   CheckSquare, Clock, Flame, Timer, Plus, Bot, BookOpen, Target, Calendar, TrendingUp, LogOut
 } from "lucide-react";
@@ -39,6 +39,15 @@ const Index = () => {
       await toggleTaskCompleted(id, newCompleted);
     } catch {
       setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !newCompleted } : t));
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    setTasks(prev => prev.filter(t => t.id !== id));
+    try {
+      await deleteTask(id);
+    } catch {
+      reloadTasks();
     }
   };
 
@@ -146,6 +155,7 @@ const Index = () => {
                   dueTime={task.due_time || ""}
                   completed={task.completed}
                   onToggle={handleToggle}
+                  onDelete={handleDelete}
                 />
               ))}
             </div>
