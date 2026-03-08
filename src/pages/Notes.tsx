@@ -261,22 +261,29 @@ const Notes = () => {
                     <Label>Upload a file (optional)</Label>
                     <div className="relative">
                       <label className="flex items-center gap-3 p-4 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors">
-                        <Upload className="h-5 w-5 text-muted-foreground" />
+                        {extracting ? (
+                          <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                        ) : (
+                          <Upload className="h-5 w-5 text-muted-foreground" />
+                        )}
                         <div className="flex-1 min-w-0">
-                          {file ? (
+                          {extracting ? (
+                            <span className="text-sm font-medium text-primary">Extracting text from file...</span>
+                          ) : file ? (
                             <span className="text-sm font-medium text-foreground truncate">{file.name}</span>
                           ) : (
-                            <span className="text-sm text-muted-foreground">Click to upload .txt, .md, .csv, etc.</span>
+                            <span className="text-sm text-muted-foreground">Upload PDF, DOCX, TXT, or image file</span>
                           )}
                         </div>
                         <input
                           type="file"
                           className="hidden"
-                          accept=".txt,.md,.csv,.json,.tex,.log"
+                          accept=".txt,.pdf,.doc,.docx,.png,.jpg,.jpeg,.webp,.gif"
                           onChange={handleFileChange}
+                          disabled={extracting}
                         />
                       </label>
-                      {file && (
+                      {file && !extracting && (
                         <button
                           type="button"
                           onClick={() => { setFile(null); setContent(""); }}
