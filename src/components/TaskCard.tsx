@@ -1,7 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, Flag, Trash2 } from "lucide-react";
+import { Clock, Trash2 } from "lucide-react";
 
 interface TaskCardProps {
   id: string;
@@ -20,47 +20,45 @@ export const TaskCard = ({
   const priorityConfig = {
     high: { color: "bg-destructive/10 text-destructive border-destructive/20", dot: "bg-destructive" },
     medium: { color: "bg-accent/10 text-accent border-accent/20", dot: "bg-accent" },
-    low: { color: "bg-success/10 text-success border-success/20", dot: "bg-success" },
+    low: { color: "bg-primary/10 text-primary border-primary/20", dot: "bg-primary" },
   };
 
   const p = priorityConfig[priority];
 
   return (
-    <div className={`glass rounded-xl p-4 card-hover group ${completed ? 'opacity-50' : ''} transition-all duration-300`}>
-      <div className="flex items-start gap-4">
-        <div className="pt-0.5">
-          <Checkbox 
-            checked={completed} 
-            onCheckedChange={() => onToggle(id)}
-            className="h-5 w-5 rounded-md border-2 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-          />
-        </div>
-        <div className="flex-1 space-y-2 min-w-0">
-          <h4 className={`font-semibold text-sm leading-tight ${completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+    <div className={`bg-card rounded-xl p-4 shadow-[var(--shadow-soft)] card-hover group ${completed ? 'opacity-50' : ''}`}>
+      <div className="flex items-center gap-4">
+        <Checkbox 
+          checked={completed} 
+          onCheckedChange={() => onToggle(id)}
+          className="h-5 w-5 rounded-md border-2 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+        />
+        <div className="flex-1 min-w-0">
+          <h4 className={`font-semibold text-sm ${completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
             {title}
           </h4>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
             {subject && (
               <Badge variant="secondary" className="text-[11px] font-medium px-2 py-0 h-5 rounded-md">
                 {subject}
               </Badge>
             )}
             <Badge variant="outline" className={`${p.color} text-[11px] font-medium px-2 py-0 h-5 rounded-md border`}>
-              <span className={`${p.dot} h-1.5 w-1.5 rounded-full mr-1.5 inline-block`} />
+              <span className={`${p.dot} h-1.5 w-1.5 rounded-full mr-1 inline-block`} />
               {priority}
             </Badge>
-            {dueTime && (
-              <span className="flex items-center gap-1 text-[11px] text-muted-foreground font-medium">
-                <Clock className="h-3 w-3" />{dueTime}
-              </span>
-            )}
           </div>
         </div>
+        {dueTime && (
+          <span className="flex items-center gap-1 text-xs text-muted-foreground font-medium whitespace-nowrap">
+            <Clock className="h-3 w-3" />{dueTime}
+          </span>
+        )}
         {onDelete && (
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-all text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
+            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-all text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg flex-shrink-0"
             onClick={() => onDelete(id)}
           >
             <Trash2 className="h-4 w-4" />

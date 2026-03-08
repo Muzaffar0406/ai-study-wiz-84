@@ -35,18 +35,17 @@ export const PomodoroTimer = () => {
 
   const totalTime = isBreak ? BREAK_TIME : POMODORO_TIME;
   const progress = ((totalTime - timeLeft) / totalTime) * 100;
-  const circumference = 2 * Math.PI * 88;
+  const circumference = 2 * Math.PI * 70;
   const dashOffset = circumference - (progress / 100) * circumference;
 
   return (
-    <div className="glass rounded-2xl p-8 text-center space-y-6">
-      {/* Circular progress */}
-      <div className="relative w-52 h-52 mx-auto">
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 200 200">
-          <circle cx="100" cy="100" r="88" fill="none" className="stroke-muted" strokeWidth="6" />
+    <div className="bg-card rounded-2xl p-6 shadow-[var(--shadow-soft)] text-center space-y-5">
+      <div className="relative w-44 h-44 mx-auto">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="70" fill="none" className="stroke-muted" strokeWidth="6" />
           <circle
-            cx="100" cy="100" r="88" fill="none"
-            className={isBreak ? "stroke-accent" : "stroke-primary"}
+            cx="80" cy="80" r="70" fill="none"
+            className="stroke-primary"
             strokeWidth="6"
             strokeLinecap="round"
             strokeDasharray={circumference}
@@ -55,29 +54,24 @@ export const PomodoroTimer = () => {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
             {isBreak ? "Break" : "Focus"}
           </span>
-          <span className="text-5xl font-extrabold tracking-tight text-gradient">
+          <span className="text-4xl font-extrabold tracking-tight text-foreground">
             {formatTime(timeLeft)}
           </span>
         </div>
       </div>
 
-      <div className="flex gap-3 justify-center">
+      <div className="flex gap-2 justify-center">
         <Button
           onClick={() => setIsRunning(!isRunning)}
-          size="lg"
-          className="rounded-xl px-8 bg-gradient-to-r from-primary to-primary-glow hover:shadow-[0_8px_30px_hsl(var(--primary)/0.3)] transition-all duration-300"
+          className="rounded-xl px-6 bg-primary hover:bg-primary/90"
         >
-          {isRunning ? (
-            <><Pause className="h-5 w-5 mr-2" />Pause</>
-          ) : (
-            <><Play className="h-5 w-5 mr-2" />Start</>
-          )}
+          {isRunning ? <><Pause className="h-4 w-4 mr-1.5" />Pause</> : <><Play className="h-4 w-4 mr-1.5" />Start</>}
         </Button>
-        <Button onClick={handleReset} size="lg" variant="outline" className="rounded-xl">
-          <RotateCcw className="h-5 w-5 mr-2" />Reset
+        <Button onClick={handleReset} variant="outline" className="rounded-xl">
+          <RotateCcw className="h-4 w-4 mr-1.5" />Reset
         </Button>
       </div>
     </div>
