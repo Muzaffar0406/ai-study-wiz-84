@@ -128,6 +128,33 @@ const Index = () => {
             </div>
           </div>
 
+          {/* Goal Progress */}
+          {goals.filter(g => !isGoalComplete(g) && !isGoalExpired(g)).length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Goal Progress</h3>
+                <button onClick={() => navigate("/goals")} className="text-xs text-primary hover:underline font-medium">View All</button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {goals.filter(g => !isGoalComplete(g) && !isGoalExpired(g)).slice(0, 3).map(goal => {
+                  const progress = getGoalProgress(goal);
+                  return (
+                    <div key={goal.id} className="bg-card rounded-2xl p-4 shadow-[var(--shadow-soft)] border border-border/50">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold text-foreground truncate">{goal.title}</h4>
+                        <span className="text-xs font-bold text-primary">{progress}%</span>
+                      </div>
+                      <Progress value={progress} className="h-2" />
+                      <p className="text-xs text-muted-foreground mt-1.5">
+                        {goal.current_value} / {goal.target_value}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Content Grid */}
           <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3 gap-8'}`}>
             {/* Tasks */}
