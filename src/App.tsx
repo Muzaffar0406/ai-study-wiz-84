@@ -14,6 +14,7 @@ import Tasks from "./pages/Tasks";
 import CalendarPage from "./pages/Calendar";
 import Analytics from "./pages/Analytics";
 import Flashcards from "./pages/Flashcards";
+import Goals from "./pages/Goals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
