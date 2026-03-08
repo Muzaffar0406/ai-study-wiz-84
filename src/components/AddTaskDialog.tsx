@@ -21,7 +21,6 @@ export function AddTaskDialog({ onTaskAdded, open: controlledOpen, onOpenChange 
   const isOpen = controlledOpen ?? internalOpen;
   const setOpen = onOpenChange ?? setInternalOpen;
   const [loading, setLoading] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [subject, setSubject] = useState("");
   const [priority, setPriority] = useState<"high" | "medium" | "low">("medium");
