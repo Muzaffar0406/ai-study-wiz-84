@@ -4,6 +4,7 @@ import { QuickActionButton } from "@/components/QuickActionButton";
 import { TaskCard } from "@/components/TaskCard";
 import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { AIChatBot } from "@/components/AIChatBot";
+import { AddTaskDialog } from "@/components/AddTaskDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchTasks, toggleTaskCompleted, fetchProfile } from "@/lib/database";
 import { 
