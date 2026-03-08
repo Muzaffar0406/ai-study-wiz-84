@@ -13,6 +13,7 @@ import { useSidebarState } from "@/hooks/useSidebarState";
 import { fetchTasks, toggleTaskCompleted, deleteTask, fetchProfile, fetchTodayStudyStats, fetchStudyStreak } from "@/lib/database";
 import { fetchGoals, syncGoalProgress, showGoalReminders, getGoalProgress, isGoalComplete, isGoalExpired, type Goal } from "@/lib/goals";
 import { Progress } from "@/components/ui/progress";
+import { toast } from "@/hooks/use-toast";
 import { 
   CheckSquare, Clock, Flame, Timer, Plus, Bot, Target, TrendingUp
 } from "lucide-react";
