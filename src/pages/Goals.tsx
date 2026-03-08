@@ -59,7 +59,8 @@ const Goals = () => {
     setLoading(true);
     try {
       const data = await fetchGoals(user.id);
-      setGoals(data);
+      const synced = await syncGoalProgress(user.id, data);
+      setGoals(synced);
     } catch (err) {
       console.error("Failed to load goals:", err);
     } finally {
