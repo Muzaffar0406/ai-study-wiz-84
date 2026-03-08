@@ -4,10 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
-import { streamChat, type ChatMessage } from "@/lib/streamChat";
-import { fetchChatMessages, saveChatMessage, clearChatMessages } from "@/lib/database";
+import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "@/hooks/use-toast";
 
 const SUGGESTIONS = [
   "What should I study today?",
@@ -26,88 +24,19 @@ export function AIChatBot({ open: controlledOpen, onOpenChange }: AIChatBotProps
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = controlledOpen ?? internalOpen;
   const setIsOpen = onOpenChange ?? setInternalOpen;
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Load chat history when opened
-  useEffect(() => {
-    if (isOpen && !loaded && user) {
-      fetchChatMessages()
-        .then((msgs) => {
-          setMessages(msgs.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })));
-          setLoaded(true);
-        })
-        .catch(console.error);
-    }
-  }, [isOpen, loaded, user]);
+  const {
+    messages, input, setInput, isLoading, loaded,
+    scrollRef, inputRef, loadHistory, sendMessage, handleClear,
+  } = useChat(user?.id);
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages]);
+    if (isOpen && !loaded) loadHistory();
+  }, [isOpen, loaded, loadHistory]);
 
   useEffect(() => {
-    if (isOpen && inputRef.current) inputRef.current.focus();
-  }, [isOpen]);
-
-  const sendMessage = async (content: string) => {
-    if (!content.trim() || isLoading || !user) return;
-
-    const userMsg: ChatMessage = { role: "user", content: content.trim() };
-    const updatedMessages = [...messages, userMsg];
-    setMessages(updatedMessages);
-    setInput("");
-    setIsLoading(true);
-
-    // Save user message
-    saveChatMessage({ user_id: user.id, role: "user", content: userMsg.content }).catch(console.error);
-
-    let assistantContent = "";
-
-    const upsertAssistant = (chunk: string) => {
-      assistantContent += chunk;
-      setMessages((prev) => {
-        const last = prev[prev.length - 1];
-        if (last?.role === "assistant") {
-          return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantContent } : m));
-        }
-        return [...prev, { role: "assistant", content: assistantContent }];
-      });
-    };
-
-    try {
-      await streamChat({
-        messages: updatedMessages,
-        onDelta: upsertAssistant,
-        onDone: () => {
-          setIsLoading(false);
-          // Save assistant message
-          if (assistantContent) {
-            saveChatMessage({ user_id: user.id, role: "assistant", content: assistantContent }).catch(console.error);
-          }
-        },
-        onError: (error) => {
-          setIsLoading(false);
-          toast({ title: "AI Error", description: error, variant: "destructive" });
-        },
-      });
-    } catch {
-      setIsLoading(false);
-      toast({ title: "Connection Error", description: "Could not reach the AI assistant.", variant: "destructive" });
-    }
-  };
-
-  const handleClear = async () => {
-    try {
-      await clearChatMessages();
-      setMessages([]);
-    } catch {
-      toast({ title: "Error", description: "Could not clear chat history.", variant: "destructive" });
-    }
-  };
+    if (isOpen && inputRef.current) (inputRef.current as HTMLInputElement).focus();
+  }, [isOpen, inputRef]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -199,7 +128,7 @@ export function AIChatBot({ open: controlledOpen, onOpenChange }: AIChatBotProps
           {/* Input */}
           <form onSubmit={handleSubmit} className="flex items-center gap-2 p-3 border-t border-border">
             <Input
-              ref={inputRef}
+              ref={inputRef as React.RefObject<HTMLInputElement>}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask anything about studying..."
