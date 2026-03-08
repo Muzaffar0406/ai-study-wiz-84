@@ -290,6 +290,7 @@ const Tasks = () => {
                         title={task.title}
                         subject={task.subject}
                         priority={task.priority}
+                        dueDate={task.due_date || undefined}
                         dueTime={task.due_time || ""}
                         completed={task.completed}
                         onToggle={handleToggle}
