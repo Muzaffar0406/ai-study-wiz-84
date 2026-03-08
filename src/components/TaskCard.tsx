@@ -51,11 +51,18 @@ export const TaskCard = ({
             </Badge>
           </div>
         </div>
-        {dueTime && (
-          <span className="flex items-center gap-1 text-xs text-muted-foreground font-medium whitespace-nowrap">
-            <Clock className="h-3 w-3" />{dueTime}
-          </span>
-        )}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {dueDate && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground font-medium whitespace-nowrap">
+              <Calendar className="h-3 w-3" />{format(new Date(dueDate + "T00:00:00"), "MMM d")}
+            </span>
+          )}
+          {dueTime && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground font-medium whitespace-nowrap">
+              <Clock className="h-3 w-3" />{dueTime}
+            </span>
+          )}
+        </div>
         {onDelete && (
           <Button
             variant="ghost"
