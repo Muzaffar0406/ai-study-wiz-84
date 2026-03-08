@@ -1,6 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Flag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Clock, Flag, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface TaskCardProps {
@@ -11,16 +12,11 @@ interface TaskCardProps {
   dueTime: string;
   completed: boolean;
   onToggle: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export const TaskCard = ({ 
-  id, 
-  title, 
-  subject, 
-  priority, 
-  dueTime, 
-  completed, 
-  onToggle 
+  id, title, subject, priority, dueTime, completed, onToggle, onDelete
 }: TaskCardProps) => {
   const priorityColors = {
     high: "bg-destructive text-destructive-foreground",
@@ -41,19 +37,27 @@ export const TaskCard = ({
             {title}
           </h4>
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="secondary" className="text-xs">
-              {subject}
-            </Badge>
+            <Badge variant="secondary" className="text-xs">{subject}</Badge>
             <Badge className={`${priorityColors[priority]} text-xs`}>
-              <Flag className="h-3 w-3 mr-1" />
-              {priority}
+              <Flag className="h-3 w-3 mr-1" />{priority}
             </Badge>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              <span>{dueTime}</span>
-            </div>
+            {dueTime && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Clock className="h-3 w-3" /><span>{dueTime}</span>
+              </div>
+            )}
           </div>
         </div>
+        {onDelete && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+            onClick={() => onDelete(id)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     </Card>
   );
