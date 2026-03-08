@@ -5,7 +5,7 @@ import { useSidebarState } from "@/hooks/useSidebarState";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { Home, BookOpen, CheckSquare, Bot, Settings, LogOut, Menu, X, FileText } from "lucide-react";
+import { Home, BookOpen, CheckSquare, Bot, Settings, LogOut, Menu, X, FileText, CalendarDays } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AppSidebarProps {
@@ -27,6 +27,7 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
     { icon: CheckSquare, label: "Tasks", path: "/tasks" },
+    { icon: CalendarDays, label: "Calendar", path: "/calendar" },
     { icon: FileText, label: "Notes", path: "/notes" },
     { icon: Bot, label: "AI Assistant", action: onAIClick },
     { icon: Settings, label: "Settings", path: "/profile" },

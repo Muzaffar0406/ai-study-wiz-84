@@ -6,6 +6,7 @@ export interface DbTask {
   title: string;
   subject: string;
   priority: "high" | "medium" | "low";
+  due_date: string | null;
   due_time: string | null;
   completed: boolean;
   created_at: string;

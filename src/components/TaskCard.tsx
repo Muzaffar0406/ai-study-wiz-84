@@ -1,13 +1,15 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, Trash2 } from "lucide-react";
+import { Clock, Calendar, Trash2 } from "lucide-react";
+import { format } from "date-fns";
 
 interface TaskCardProps {
   id: string;
   title: string;
   subject: string;
   priority: "high" | "medium" | "low";
+  dueDate?: string;
   dueTime: string;
   completed: boolean;
   onToggle: (id: string) => void;
@@ -15,7 +17,7 @@ interface TaskCardProps {
 }
 
 export const TaskCard = ({ 
-  id, title, subject, priority, dueTime, completed, onToggle, onDelete
+  id, title, subject, priority, dueDate, dueTime, completed, onToggle, onDelete
 }: TaskCardProps) => {
   const priorityConfig = {
     high: { color: "bg-destructive/10 text-destructive border-destructive/20", dot: "bg-destructive" },
@@ -49,11 +51,18 @@ export const TaskCard = ({
             </Badge>
           </div>
         </div>
-        {dueTime && (
-          <span className="flex items-center gap-1 text-xs text-muted-foreground font-medium whitespace-nowrap">
-            <Clock className="h-3 w-3" />{dueTime}
-          </span>
-        )}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {dueDate && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground font-medium whitespace-nowrap">
+              <Calendar className="h-3 w-3" />{format(new Date(dueDate + "T00:00:00"), "MMM d")}
+            </span>
+          )}
+          {dueTime && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground font-medium whitespace-nowrap">
+              <Clock className="h-3 w-3" />{dueTime}
+            </span>
+          )}
+        </div>
         {onDelete && (
           <Button
             variant="ghost"
