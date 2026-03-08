@@ -7,7 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { fetchProfile } from "@/lib/database";
 import {
   fetchGoals, createGoal, updateGoalProgress, deleteGoal,
-  getGoalProgress, isGoalExpired, isGoalComplete,
+  getGoalProgress, isGoalExpired, isGoalComplete, syncGoalProgress,
   GOAL_TYPES, type Goal,
 } from "@/lib/goals";
 import { Button } from "@/components/ui/button";
@@ -59,7 +59,8 @@ const Goals = () => {
     setLoading(true);
     try {
       const data = await fetchGoals(user.id);
-      setGoals(data);
+      const synced = await syncGoalProgress(user.id, data);
+      setGoals(synced);
     } catch (err) {
       console.error("Failed to load goals:", err);
     } finally {

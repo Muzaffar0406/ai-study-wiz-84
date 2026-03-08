@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSidebarState } from "@/hooks/useSidebarState";
 import { fetchTasks, toggleTaskCompleted, deleteTask, fetchProfile, fetchTodayStudyStats, fetchStudyStreak } from "@/lib/database";
-import { fetchGoals, getGoalProgress, isGoalComplete, isGoalExpired, type Goal } from "@/lib/goals";
+import { fetchGoals, syncGoalProgress, getGoalProgress, isGoalComplete, isGoalExpired, type Goal } from "@/lib/goals";
 import { Progress } from "@/components/ui/progress";
 import { 
   CheckSquare, Clock, Flame, Timer, Plus, Bot, Target, TrendingUp
@@ -47,7 +47,7 @@ const Index = () => {
     reloadTasks();
     reloadStats();
     fetchProfile(user.id).then(setProfile).catch(console.error);
-    fetchGoals(user.id).then(setGoals).catch(console.error);
+    fetchGoals(user.id).then(g => syncGoalProgress(user.id, g)).then(setGoals).catch(console.error);
   }, [user, reloadStats]);
 
   const handleToggle = async (id: string) => {
