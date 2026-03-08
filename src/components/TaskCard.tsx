@@ -1,13 +1,15 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, Trash2 } from "lucide-react";
+import { Clock, Calendar, Trash2 } from "lucide-react";
+import { format } from "date-fns";
 
 interface TaskCardProps {
   id: string;
   title: string;
   subject: string;
   priority: "high" | "medium" | "low";
+  dueDate?: string;
   dueTime: string;
   completed: boolean;
   onToggle: (id: string) => void;
