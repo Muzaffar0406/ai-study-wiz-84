@@ -1,26 +1,61 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, RotateCcw } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { startStudySession, completeStudySession } from "@/lib/database";
+import { toast } from "@/hooks/use-toast";
 
 const POMODORO_TIME = 25 * 60;
 const BREAK_TIME = 5 * 60;
 
-export const PomodoroTimer = () => {
+interface PomodoroTimerProps {
+  onSessionComplete?: () => void;
+}
+
+export const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
+  const { user } = useAuth();
   const [timeLeft, setTimeLeft] = useState(POMODORO_TIME);
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isRunning && timeLeft > 0) {
       interval = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
     } else if (timeLeft === 0) {
-      setIsBreak(!isBreak);
-      setTimeLeft(isBreak ? POMODORO_TIME : BREAK_TIME);
-      setIsRunning(false);
+      handleTimerEnd();
     }
     return () => clearInterval(interval);
-  }, [isRunning, timeLeft, isBreak]);
+  }, [isRunning, timeLeft]);
+
+  const handleTimerEnd = async () => {
+    if (!isBreak && sessionId) {
+      try {
+        await completeStudySession(sessionId);
+        toast({ title: "Focus session complete! 🎉", description: "Great job staying focused." });
+        setSessionId(null);
+        onSessionComplete?.();
+      } catch {
+        console.error("Failed to complete session");
+      }
+    }
+    setIsBreak(!isBreak);
+    setTimeLeft(isBreak ? POMODORO_TIME : BREAK_TIME);
+    setIsRunning(false);
+  };
+
+  const handleStart = async () => {
+    if (!isRunning && !isBreak && !sessionId && user) {
+      try {
+        const session = await startStudySession(user.id, 25, "focus");
+        setSessionId(session.id);
+      } catch {
+        console.error("Failed to start session");
+      }
+    }
+    setIsRunning(!isRunning);
+  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -31,6 +66,7 @@ export const PomodoroTimer = () => {
   const handleReset = () => {
     setTimeLeft(isBreak ? BREAK_TIME : POMODORO_TIME);
     setIsRunning(false);
+    setSessionId(null);
   };
 
   const totalTime = isBreak ? BREAK_TIME : POMODORO_TIME;
@@ -40,7 +76,7 @@ export const PomodoroTimer = () => {
 
   return (
     <div className="bg-card rounded-2xl p-6 shadow-[var(--shadow-soft)] text-center space-y-5">
-      <div className="relative w-44 h-44 mx-auto">
+      <div className="relative w-40 h-40 sm:w-44 sm:h-44 mx-auto">
         <svg className="w-full h-full -rotate-90" viewBox="0 0 160 160">
           <circle cx="80" cy="80" r="70" fill="none" className="stroke-muted" strokeWidth="6" />
           <circle
@@ -57,7 +93,7 @@ export const PomodoroTimer = () => {
           <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
             {isBreak ? "Break" : "Focus"}
           </span>
-          <span className="text-4xl font-extrabold tracking-tight text-foreground">
+          <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
             {formatTime(timeLeft)}
           </span>
         </div>
@@ -65,8 +101,8 @@ export const PomodoroTimer = () => {
 
       <div className="flex gap-2 justify-center">
         <Button
-          onClick={() => setIsRunning(!isRunning)}
-          className="rounded-xl px-6 bg-primary hover:bg-primary/90"
+          onClick={handleStart}
+          className="rounded-xl px-5 sm:px-6 bg-primary hover:bg-primary/90"
         >
           {isRunning ? <><Pause className="h-4 w-4 mr-1.5" />Pause</> : <><Play className="h-4 w-4 mr-1.5" />Start</>}
         </Button>

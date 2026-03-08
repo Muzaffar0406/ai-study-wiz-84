@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { StatCard } from "@/components/StatCard";
 import { QuickActionButton } from "@/components/QuickActionButton";
 import { TaskCard } from "@/components/TaskCard";
@@ -7,7 +7,8 @@ import { AIChatBot } from "@/components/AIChatBot";
 import { AddTaskDialog } from "@/components/AddTaskDialog";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchTasks, toggleTaskCompleted, deleteTask, fetchProfile } from "@/lib/database";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { fetchTasks, toggleTaskCompleted, deleteTask, fetchProfile, fetchTodayStudyStats, fetchStudyStreak } from "@/lib/database";
 import { 
   CheckSquare, Clock, Flame, Timer, Plus, Bot, Target, TrendingUp
 } from "lucide-react";
@@ -15,21 +16,31 @@ import type { DbTask } from "@/lib/database";
 
 const Index = () => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [tasks, setTasks] = useState<DbTask[]>([]);
   const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
   const [addTaskOpen, setAddTaskOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [studyMinutes, setStudyMinutes] = useState(0);
+  const [streak, setStreak] = useState(0);
   const timerRef = useRef<HTMLDivElement>(null);
 
   const reloadTasks = () => {
     fetchTasks().then(setTasks).catch(console.error);
   };
 
+  const reloadStats = useCallback(() => {
+    if (!user) return;
+    fetchTodayStudyStats(user.id).then(s => setStudyMinutes(s.totalMinutes)).catch(console.error);
+    fetchStudyStreak(user.id).then(setStreak).catch(console.error);
+  }, [user]);
+
   useEffect(() => {
     if (!user) return;
     reloadTasks();
+    reloadStats();
     fetchProfile(user.id).then(setProfile).catch(console.error);
-  }, [user]);
+  }, [user, reloadStats]);
 
   const handleToggle = async (id: string) => {
     const task = tasks.find(t => t.id === id);
@@ -57,44 +68,46 @@ const Index = () => {
   const incompleteTasks = tasks.filter(t => !t.completed).length;
   const completedTasks = tasks.filter(t => t.completed).length;
 
-  const stats = {
-    tasksToday: incompleteTasks,
-    studyHours: "4.5h",
-    streak: 12,
-    completionRate: tasks.length ? `${Math.round((completedTasks / tasks.length) * 100)}%` : "0%",
+  const formatStudyTime = (mins: number) => {
+    if (mins < 60) return `${mins}m`;
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
   };
+
+  const completionRate = tasks.length ? `${Math.round((completedTasks / tasks.length) * 100)}%` : "0%";
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Sidebar */}
       <AppSidebar displayName={displayName} avatarUrl={avatarUrl} onAIClick={() => setChatOpen(true)} />
 
-      {/* Main Content */}
-      <main className="ml-[240px] min-h-screen">
+      <main className={`min-h-screen ${isMobile ? '' : 'ml-[240px]'}`}>
         {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground">
+        <header className={`sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 py-4 ${isMobile ? 'px-4 pt-14' : 'px-8'}`}>
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-foreground truncate`}>
                 Welcome back, {displayName} 👋
               </h2>
               <p className="text-sm text-muted-foreground mt-0.5">
                 {incompleteTasks > 0
-                  ? `You have ${incompleteTasks} pending task${incompleteTasks > 1 ? 's' : ''} today`
+                  ? `You have ${incompleteTasks} pending task${incompleteTasks > 1 ? 's' : ''}`
                   : "All caught up! Great work."}
               </p>
             </div>
-            <AddTaskDialog onTaskAdded={reloadTasks} open={addTaskOpen} onOpenChange={setAddTaskOpen} />
+            <div className="flex-shrink-0">
+              <AddTaskDialog onTaskAdded={reloadTasks} open={addTaskOpen} onOpenChange={setAddTaskOpen} />
+            </div>
           </div>
         </header>
 
-        <div className="p-8 space-y-8">
+        <div className={`space-y-6 ${isMobile ? 'p-4' : 'p-8 space-y-8'}`}>
           {/* Stats */}
-          <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatCard title="Tasks Left" value={stats.tasksToday} icon={CheckSquare} gradient="primary" />
-            <StatCard title="Study Hours" value={stats.studyHours} icon={Clock} trend="+1.2h" gradient="accent" />
-            <StatCard title="Day Streak" value={`${stats.streak} 🔥`} icon={Flame} gradient="success" />
-            <StatCard title="Completion" value={stats.completionRate} icon={TrendingUp} trend="+5%" gradient="primary" />
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+            <StatCard title="Tasks Left" value={incompleteTasks} icon={CheckSquare} gradient="primary" />
+            <StatCard title="Study Time" value={formatStudyTime(studyMinutes)} icon={Clock} gradient="accent" />
+            <StatCard title="Day Streak" value={streak > 0 ? `${streak} 🔥` : "0"} icon={Flame} gradient="success" />
+            <StatCard title="Completion" value={completionRate} icon={TrendingUp} gradient="primary" />
           </div>
 
           {/* Quick Actions */}
@@ -108,9 +121,9 @@ const Index = () => {
           </div>
 
           {/* Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3 gap-8'}`}>
             {/* Tasks */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className={`${isMobile ? '' : 'lg:col-span-2'} space-y-3`}>
               <div className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-primary" />
                 <h3 className="text-base font-bold text-foreground">Today's Tasks</h3>
@@ -122,7 +135,7 @@ const Index = () => {
               </div>
               <div className="space-y-2">
                 {tasks.length === 0 && (
-                  <div className="bg-card rounded-2xl p-10 text-center shadow-[var(--shadow-soft)]">
+                  <div className="bg-card rounded-2xl p-8 sm:p-10 text-center shadow-[var(--shadow-soft)]">
                     <CheckSquare className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
                     <p className="text-sm font-medium text-muted-foreground">No tasks yet</p>
                     <p className="text-xs text-muted-foreground mt-1">Click "Add Task" to get started</p>
@@ -145,18 +158,17 @@ const Index = () => {
             </div>
 
             {/* Timer */}
-            <div className="space-y-4" ref={timerRef}>
+            <div className="space-y-3" ref={timerRef}>
               <div className="flex items-center gap-2">
                 <Timer className="h-5 w-5 text-primary" />
                 <h3 className="text-base font-bold text-foreground">Focus Timer</h3>
               </div>
-              <PomodoroTimer />
+              <PomodoroTimer onSessionComplete={reloadStats} />
             </div>
           </div>
         </div>
       </main>
 
-      {/* AI Chat */}
       <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );
