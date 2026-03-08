@@ -60,6 +60,7 @@ const Notes = () => {
   const [viewSummaryId, setViewSummaryId] = useState<string | null>(null);
   const [viewContentId, setViewContentId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [generatingCardsId, setGeneratingCardsId] = useState<string | null>(null);
 
   const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
