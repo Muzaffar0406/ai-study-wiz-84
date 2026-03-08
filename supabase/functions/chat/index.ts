@@ -51,8 +51,18 @@ serve(async (req) => {
     const authHeader = req.headers.get("authorization");
     if (authHeader) {
       try {
-        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-        const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!;
+        const supabaseUrl = Deno.env.get("SUPABASE_URL") || Deno.env.get("SB_URL") || "https://klblwcqsxiagerzhzamj.supabase.co";
+        // List all env vars for debugging
+        const possibleKeys = ["SUPABASE_ANON_KEY", "SUPABASE_PUBLISHABLE_KEY", "SB_ANON_KEY", "SUPABASE_KEY"];
+        let supabaseAnonKey = "";
+        for (const k of possibleKeys) {
+          const v = Deno.env.get(k);
+          if (v) { supabaseAnonKey = v; break; }
+        }
+        if (!supabaseAnonKey) {
+          // Use the publishable anon key directly (it's safe - it's a public key)
+          supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsYmx3Y3FzeGlhZ2Vyemh6YW1qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0MDMxODEsImV4cCI6MjA3Njk3OTE4MX0.kZQpjX8D8SvuWMNz2i20qzWji9pm74IOoHlPdc4Zzrw";
+        }
         const supabase = createClient(supabaseUrl, supabaseAnonKey, {
           global: { headers: { Authorization: authHeader } },
         });
