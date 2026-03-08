@@ -155,6 +155,7 @@ const Index = () => {
                   dueTime={task.due_time || ""}
                   completed={task.completed}
                   onToggle={handleToggle}
+                  onDelete={handleDelete}
                 />
               ))}
             </div>
