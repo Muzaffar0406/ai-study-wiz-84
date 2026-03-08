@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Home, BookOpen, CheckSquare, Bot, Settings, LogOut, Menu, X } from "lucide-react";
+import { Home, BookOpen, CheckSquare, Bot, Settings, LogOut, Menu, X, FileText } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AppSidebarProps {
@@ -24,6 +24,7 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
     { icon: CheckSquare, label: "Tasks", path: "/", hash: "tasks" },
+    { icon: FileText, label: "Notes", path: "/notes" },
     { icon: Bot, label: "AI Assistant", action: onAIClick },
     { icon: Settings, label: "Settings", path: "/profile" },
   ];
