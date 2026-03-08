@@ -74,8 +74,10 @@ const Index = () => {
 
   const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
-  const incompleteTasks = tasks.filter(t => !t.completed).length;
-  const completedTasks = tasks.filter(t => t.completed).length;
+  const today = new Date().toISOString().split("T")[0];
+  const todayTasks = tasks.filter(t => t.due_date === today || (!t.due_date && !t.completed));
+  const incompleteTasks = todayTasks.filter(t => !t.completed).length;
+  const completedTasks = todayTasks.filter(t => t.completed).length;
 
   const formatStudyTime = (mins: number) => {
     if (mins < 60) return `${mins}m`;
