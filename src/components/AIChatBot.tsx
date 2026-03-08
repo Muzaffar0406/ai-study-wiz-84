@@ -10,10 +10,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 
 const SUGGESTIONS = [
-  "How do I study more effectively?",
-  "Explain the Pomodoro technique",
+  "What should I study today?",
+  "How am I doing on my goals?",
   "Help me plan my study schedule",
-  "Quiz me on a topic",
+  "Quiz me on my notes",
 ];
 
 interface AIChatBotProps {
