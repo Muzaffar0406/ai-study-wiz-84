@@ -11,10 +11,11 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchProfile } from "@/lib/database";
+import { createFlashcardsBatch } from "@/lib/flashcards";
 import ReactMarkdown from "react-markdown";
 import {
   Plus, FileText, Sparkles, Trash2, Upload, Loader2, BookOpen,
-  Download, X, Eye, EyeOff, File, Image as ImageIcon
+  Download, X, Eye, EyeOff, File, Image as ImageIcon, Layers
 } from "lucide-react";
 
 interface Note {
@@ -59,6 +60,7 @@ const Notes = () => {
   const [viewSummaryId, setViewSummaryId] = useState<string | null>(null);
   const [viewContentId, setViewContentId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [generatingCardsId, setGeneratingCardsId] = useState<string | null>(null);
 
   const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
@@ -200,6 +202,43 @@ const Notes = () => {
     if (error) {
       loadNotes();
       toast({ title: "Error", description: "Could not delete note.", variant: "destructive" });
+    }
+  };
+
+  const handleGenerateFlashcards = async (note: Note) => {
+    if (!user || !note.content) {
+      toast({ title: "No content", description: "This note has no text to generate flashcards from.", variant: "destructive" });
+      return;
+    }
+    setGeneratingCardsId(note.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-flashcards", {
+        body: { noteContent: note.content, noteTitle: note.title, count: 10 },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const cards = data.flashcards;
+      if (!cards || cards.length === 0) {
+        toast({ title: "No cards generated", description: "AI could not extract flashcards from this content." });
+        return;
+      }
+
+      await createFlashcardsBatch(
+        cards.map((c: { front: string; back: string }) => ({
+          user_id: user.id,
+          front: c.front,
+          back: c.back,
+          note_id: note.id,
+        }))
+      );
+
+      toast({ title: `${cards.length} flashcards created! 🧠`, description: "Head to Flashcards to review them." });
+    } catch (err: any) {
+      console.error("Failed to generate flashcards:", err);
+      toast({ title: "Error", description: err.message || "Failed to generate flashcards.", variant: "destructive" });
+    } finally {
+      setGeneratingCardsId(null);
     }
   };
 
@@ -433,6 +472,23 @@ const Notes = () => {
                           onClick={() => handleSummarize(note)}
                         >
                           Re-summarize
+                        </Button>
+                      )}
+
+                      {/* Generate Flashcards */}
+                      {note.content && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="gap-1 text-xs h-7 text-primary"
+                          disabled={generatingCardsId === note.id}
+                          onClick={() => handleGenerateFlashcards(note)}
+                        >
+                          {generatingCardsId === note.id ? (
+                            <><Loader2 className="h-3 w-3 animate-spin" />Generating...</>
+                          ) : (
+                            <><Layers className="h-3 w-3" />Flashcards</>
+                          )}
                         </Button>
                       )}
                     </div>
