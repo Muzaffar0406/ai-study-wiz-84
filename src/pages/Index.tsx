@@ -128,9 +128,9 @@ const Index = () => {
         <div className="space-y-4">
           <h3 className="text-2xl font-bold">Quick Actions</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <QuickActionButton icon={Timer} label="Start Study Timer" onClick={() => {}} variant="primary" />
-            <QuickActionButton icon={Plus} label="Add New Task" onClick={() => {}} variant="accent" />
-            <QuickActionButton icon={Bot} label="Ask AI Assistant" onClick={() => {}} variant="success" />
+            <QuickActionButton icon={Timer} label="Start Study Timer" onClick={() => timerRef.current?.scrollIntoView({ behavior: "smooth" })} variant="primary" />
+            <QuickActionButton icon={Plus} label="Add New Task" onClick={() => setAddTaskOpen(true)} variant="accent" />
+            <QuickActionButton icon={Bot} label="Ask AI Assistant" onClick={() => setChatOpen(true)} variant="success" />
           </div>
         </div>
 
