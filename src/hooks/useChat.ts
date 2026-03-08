@@ -14,11 +14,7 @@ export function useChat(userId: string | undefined) {
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
       if (scrollRef.current) {
-        const el = scrollRef.current;
-        // Handle both ScrollArea viewport and plain div
-        const viewport = el.querySelector("[data-radix-scroll-area-viewport]") as HTMLElement | null;
-        const target = viewport || el;
-        target.scrollTop = target.scrollHeight;
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       }
     });
   }, []);
