@@ -42,7 +42,7 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
   };
 
   const NavButton = ({ item }: { item: typeof navItems[0] }) => {
-    const isActive = item.path && location.pathname === item.path && !item.hash && !item.action;
+    const isActive = item.path && location.pathname === item.path && !item.action;
     const btn = (
       <button
         onClick={() => handleNav(item)}
