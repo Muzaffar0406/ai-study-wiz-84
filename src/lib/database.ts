@@ -90,3 +90,88 @@ export async function updateProfile(userId: string, updates: { display_name?: st
     .eq("id", userId);
   if (error) throw error;
 }
+
+// Study sessions
+export interface DbStudySession {
+  id: string;
+  user_id: string;
+  duration_minutes: number;
+  session_type: string;
+  started_at: string;
+  completed_at: string | null;
+  created_at: string;
+}
+
+export async function startStudySession(userId: string, durationMinutes: number, sessionType: string = "focus") {
+  const { data, error } = await supabase
+    .from("study_sessions")
+    .insert({ user_id: userId, duration_minutes: durationMinutes, session_type: sessionType })
+    .select()
+    .single();
+  if (error) throw error;
+  return data as DbStudySession;
+}
+
+export async function completeStudySession(sessionId: string) {
+  const { error } = await supabase
+    .from("study_sessions")
+    .update({ completed_at: new Date().toISOString() })
+    .eq("id", sessionId);
+  if (error) throw error;
+}
+
+export async function fetchTodayStudyStats(userId: string) {
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const { data, error } = await supabase
+    .from("study_sessions")
+    .select("*")
+    .eq("user_id", userId)
+    .not("completed_at", "is", null)
+    .gte("started_at", todayStart.toISOString());
+  if (error) throw error;
+
+  const totalMinutes = (data ?? []).reduce((sum, s: any) => sum + (s.duration_minutes || 0), 0);
+  return { totalMinutes, sessionCount: (data ?? []).length };
+}
+
+export async function fetchStudyStreak(userId: string): Promise<number> {
+  // Fetch completed sessions grouped by date, last 60 days
+  const sixtyDaysAgo = new Date();
+  sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+  const { data, error } = await supabase
+    .from("study_sessions")
+    .select("started_at")
+    .eq("user_id", userId)
+    .not("completed_at", "is", null)
+    .gte("started_at", sixtyDaysAgo.toISOString())
+    .order("started_at", { ascending: false });
+
+  if (error) throw error;
+  if (!data || data.length === 0) return 0;
+
+  // Get unique dates
+  const uniqueDates = new Set(
+    data.map((s: any) => new Date(s.started_at).toISOString().split("T")[0])
+  );
+
+  // Count consecutive days from today backwards
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split("T")[0];
+    if (uniqueDates.has(dateStr)) {
+      streak++;
+    } else if (i === 0) {
+      // Today might not have a session yet, skip
+      continue;
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
