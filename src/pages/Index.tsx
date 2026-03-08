@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { StatCard } from "@/components/StatCard";
 import { QuickActionButton } from "@/components/QuickActionButton";
 import { TaskCard } from "@/components/TaskCard";
@@ -10,6 +11,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSidebarState } from "@/hooks/useSidebarState";
 import { fetchTasks, toggleTaskCompleted, deleteTask, fetchProfile, fetchTodayStudyStats, fetchStudyStreak } from "@/lib/database";
+import { fetchGoals, getGoalProgress, isGoalComplete, isGoalExpired, type Goal } from "@/lib/goals";
+import { Progress } from "@/components/ui/progress";
 import { 
   CheckSquare, Clock, Flame, Timer, Plus, Bot, Target, TrendingUp
 } from "lucide-react";
@@ -17,6 +20,7 @@ import type { DbTask } from "@/lib/database";
 
 const Index = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { collapsed } = useSidebarState();
   const [tasks, setTasks] = useState<DbTask[]>([]);
@@ -25,6 +29,7 @@ const Index = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [studyMinutes, setStudyMinutes] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [goals, setGoals] = useState<Goal[]>([]);
   const timerRef = useRef<HTMLDivElement>(null);
 
   const reloadTasks = () => {
@@ -42,6 +47,7 @@ const Index = () => {
     reloadTasks();
     reloadStats();
     fetchProfile(user.id).then(setProfile).catch(console.error);
+    fetchGoals(user.id).then(setGoals).catch(console.error);
   }, [user, reloadStats]);
 
   const handleToggle = async (id: string) => {
@@ -121,6 +127,33 @@ const Index = () => {
               <QuickActionButton icon={Bot} label="Ask AI Assistant" onClick={() => setChatOpen(true)} variant="success" />
             </div>
           </div>
+
+          {/* Goal Progress */}
+          {goals.filter(g => !isGoalComplete(g) && !isGoalExpired(g)).length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Goal Progress</h3>
+                <button onClick={() => navigate("/goals")} className="text-xs text-primary hover:underline font-medium">View All</button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {goals.filter(g => !isGoalComplete(g) && !isGoalExpired(g)).slice(0, 3).map(goal => {
+                  const progress = getGoalProgress(goal);
+                  return (
+                    <div key={goal.id} className="bg-card rounded-2xl p-4 shadow-[var(--shadow-soft)] border border-border/50">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold text-foreground truncate">{goal.title}</h4>
+                        <span className="text-xs font-bold text-primary">{progress}%</span>
+                      </div>
+                      <Progress value={progress} className="h-2" />
+                      <p className="text-xs text-muted-foreground mt-1.5">
+                        {goal.current_value} / {goal.target_value}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Content Grid */}
           <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3 gap-8'}`}>
