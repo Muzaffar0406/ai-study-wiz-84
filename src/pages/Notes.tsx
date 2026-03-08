@@ -75,34 +75,71 @@ const Notes = () => {
     setLoading(false);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    // Only text-like files
+
     const allowedTypes = [
-      "text/plain", "text/markdown", "application/pdf",
-      "text/csv", "application/json",
+      "text/plain", "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "image/png", "image/jpeg", "image/jpg", "image/webp", "image/gif",
     ];
-    const allowedExts = [".txt", ".md", ".csv", ".json", ".tex", ".log"];
+    const allowedExts = [".txt", ".pdf", ".doc", ".docx", ".png", ".jpg", ".jpeg", ".webp", ".gif"];
     const ext = f.name.substring(f.name.lastIndexOf(".")).toLowerCase();
+
     if (!allowedTypes.includes(f.type) && !allowedExts.includes(ext)) {
-      toast({ title: "Unsupported file", description: "Please upload a text-based file (.txt, .md, .csv, etc.)", variant: "destructive" });
+      toast({ title: "Unsupported file", description: "Please upload a PDF, DOCX, TXT, or image file.", variant: "destructive" });
       return;
     }
-    if (f.size > 5 * 1024 * 1024) {
-      toast({ title: "File too large", description: "Max 5MB", variant: "destructive" });
+    if (f.size > 10 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Max 10MB", variant: "destructive" });
       return;
     }
+
     setFile(f);
-    // Read file content
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const text = ev.target?.result;
-      if (typeof text === "string") {
-        setContent(text);
+
+    // For plain text files, read directly
+    if (f.type === "text/plain" || ext === ".txt") {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const text = ev.target?.result;
+        if (typeof text === "string") setContent(text);
+      };
+      reader.readAsText(f);
+      return;
+    }
+
+    // For PDF, DOCX, images — upload to storage then extract text via AI
+    if (!user) return;
+    setExtracting(true);
+    try {
+      const filePath = `${user.id}/${Date.now()}_${f.name}`;
+      const { error: uploadErr } = await supabase.storage.from("notes").upload(filePath, f);
+      if (uploadErr) throw uploadErr;
+
+      // Get a signed URL for the edge function to access
+      const { data: signedData, error: signedErr } = await supabase.storage.from("notes").createSignedUrl(filePath, 300);
+      if (signedErr || !signedData?.signedUrl) throw signedErr || new Error("Failed to get signed URL");
+
+      const { data, error } = await supabase.functions.invoke("extract-text", {
+        body: { fileUrl: signedData.signedUrl, fileName: f.name, mimeType: f.type },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        toast({ title: "Extraction Error", description: data.error, variant: "destructive" });
+        return;
       }
-    };
-    reader.readAsText(f);
+      if (data?.text) {
+        setContent(data.text);
+        toast({ title: "Text extracted ✅", description: "File content loaded into the editor." });
+      }
+    } catch (err) {
+      console.error("Extract error:", err);
+      toast({ title: "Error", description: "Could not extract text from file.", variant: "destructive" });
+    } finally {
+      setExtracting(false);
+    }
   };
 
   const handleAddNote = async (e: React.FormEvent) => {
