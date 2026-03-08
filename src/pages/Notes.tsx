@@ -205,6 +205,43 @@ const Notes = () => {
     }
   };
 
+  const handleGenerateFlashcards = async (note: Note) => {
+    if (!user || !note.content) {
+      toast({ title: "No content", description: "This note has no text to generate flashcards from.", variant: "destructive" });
+      return;
+    }
+    setGeneratingCardsId(note.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-flashcards", {
+        body: { noteContent: note.content, noteTitle: note.title, count: 10 },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const cards = data.flashcards;
+      if (!cards || cards.length === 0) {
+        toast({ title: "No cards generated", description: "AI could not extract flashcards from this content." });
+        return;
+      }
+
+      await createFlashcardsBatch(
+        cards.map((c: { front: string; back: string }) => ({
+          user_id: user.id,
+          front: c.front,
+          back: c.back,
+          note_id: note.id,
+        }))
+      );
+
+      toast({ title: `${cards.length} flashcards created! 🧠`, description: "Head to Flashcards to review them." });
+    } catch (err: any) {
+      console.error("Failed to generate flashcards:", err);
+      toast({ title: "Error", description: err.message || "Failed to generate flashcards.", variant: "destructive" });
+    } finally {
+      setGeneratingCardsId(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AppSidebar displayName={displayName} avatarUrl={avatarUrl} onAIClick={() => setChatOpen(true)} />
