@@ -1,8 +1,7 @@
-import { useState, useRef, useEffect } from "react";
-import { Bot, Send, X, Sparkles, Loader2, Trash2 } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Bot, Send, X, Sparkles, Loader2, Trash2, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,11 +23,25 @@ export function AIChatBot({ open: controlledOpen, onOpenChange }: AIChatBotProps
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = controlledOpen ?? internalOpen;
   const setIsOpen = onOpenChange ?? setInternalOpen;
+  const [showScrollDown, setShowScrollDown] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const {
     messages, input, setInput, isLoading, loaded,
-    scrollRef, inputRef, loadHistory, sendMessage, handleClear,
+    inputRef, loadHistory, sendMessage, handleClear,
   } = useChat(user?.id);
+
+  const scrollToBottom = useCallback(() => {
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    });
+  }, []);
+
+  // Auto-scroll on new messages
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading, scrollToBottom]);
 
   useEffect(() => {
     if (isOpen && !loaded) loadHistory();
@@ -37,6 +50,24 @@ export function AIChatBot({ open: controlledOpen, onOpenChange }: AIChatBotProps
   useEffect(() => {
     if (isOpen && inputRef.current) (inputRef.current as HTMLInputElement).focus();
   }, [isOpen, inputRef]);
+
+  // Esc key to close
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, setIsOpen]);
+
+  // Track scroll position for "scroll to bottom" button
+  const handleScroll = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    setShowScrollDown(!isNearBottom);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +105,7 @@ export function AIChatBot({ open: controlledOpen, onOpenChange }: AIChatBotProps
           </div>
 
           {/* Messages */}
-          <ScrollArea className="flex-1 min-h-0 max-h-[380px]" ref={scrollRef}>
+          <div className="flex-1 min-h-0 max-h-[380px] overflow-y-auto relative" ref={scrollContainerRef} onScroll={handleScroll}>
             <div className="p-4 space-y-4">
               {messages.length === 0 && (
                 <div className="space-y-3">
@@ -122,8 +153,19 @@ export function AIChatBot({ open: controlledOpen, onOpenChange }: AIChatBotProps
                   </div>
                 </div>
               )}
+              <div ref={messagesEndRef} />
             </div>
-          </ScrollArea>
+
+            {/* Scroll to bottom button */}
+            {showScrollDown && (
+              <button
+                onClick={scrollToBottom}
+                className="sticky bottom-2 left-1/2 -translate-x-1/2 h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:bg-primary/90 transition-all z-10"
+              >
+                <ArrowDown className="h-4 w-4" />
+              </button>
+            )}
+          </div>
 
           {/* Input */}
           <form onSubmit={handleSubmit} className="flex items-center gap-2 p-3 border-t border-border">
