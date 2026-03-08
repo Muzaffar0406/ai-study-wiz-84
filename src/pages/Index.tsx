@@ -19,6 +19,9 @@ const Index = () => {
   const { user, signOut } = useAuth();
   const [tasks, setTasks] = useState<DbTask[]>([]);
   const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
+  const [addTaskOpen, setAddTaskOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const timerRef = useRef<HTMLDivElement>(null);
 
   const reloadTasks = () => {
     fetchTasks().then(setTasks).catch(console.error);
