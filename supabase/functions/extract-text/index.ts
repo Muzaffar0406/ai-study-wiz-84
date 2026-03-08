@@ -31,8 +31,8 @@ serve(async (req) => {
     // Fetch the file and convert to base64
     const fileResp = await fetch(fileUrl);
     if (!fileResp.ok) throw new Error("Failed to fetch file");
-    const fileBytes = await fileResp.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(fileBytes)));
+    const fileBytes = new Uint8Array(await fileResp.arrayBuffer());
+    const base64 = base64Encode(fileBytes);
 
     const mediaType = mimeType || "application/octet-stream";
 
