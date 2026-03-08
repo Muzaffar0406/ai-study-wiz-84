@@ -172,14 +172,14 @@ const Index = () => {
                 )}
               </div>
               <div className="space-y-2">
-                {tasks.length === 0 && (
+                {todayTasks.length === 0 && (
                   <div className="bg-card rounded-2xl p-8 sm:p-10 text-center shadow-[var(--shadow-soft)]">
                     <CheckSquare className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-sm font-medium text-muted-foreground">No tasks yet</p>
+                    <p className="text-sm font-medium text-muted-foreground">No tasks for today</p>
                     <p className="text-xs text-muted-foreground mt-1">Click "Add Task" to get started</p>
                   </div>
                 )}
-                {tasks.map((task) => (
+                {todayTasks.map((task) => (
                   <TaskCard
                     key={task.id}
                     id={task.id}
