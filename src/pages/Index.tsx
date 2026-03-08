@@ -164,7 +164,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4" ref={timerRef}>
             <h3 className="text-2xl font-bold">Focus Timer</h3>
             <PomodoroTimer />
           </div>
