@@ -206,7 +206,7 @@ const Notes = () => {
     <div className="min-h-screen bg-background">
       <AppSidebar displayName={displayName} avatarUrl={avatarUrl} onAIClick={() => setChatOpen(true)} />
 
-      <main className={`min-h-screen ${isMobile ? "" : "ml-[240px]"}`}>
+      <main className={`min-h-screen transition-all duration-300 ${isMobile ? "" : collapsed ? "ml-[68px]" : "ml-[240px]"}`}>
         <header className={`sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 py-4 ${isMobile ? "px-4 pt-14" : "px-8"}`}>
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
