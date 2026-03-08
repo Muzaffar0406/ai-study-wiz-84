@@ -189,7 +189,7 @@ const Index = () => {
       </div>
 
       {/* AI Chat Assistant */}
-      <AIChatBot />
+      <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );
 };
