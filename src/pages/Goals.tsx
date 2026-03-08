@@ -61,6 +61,7 @@ const Goals = () => {
       const data = await fetchGoals(user.id);
       const synced = await syncGoalProgress(user.id, data);
       setGoals(synced);
+      showGoalReminders(synced, toast);
     } catch (err) {
       console.error("Failed to load goals:", err);
     } finally {
