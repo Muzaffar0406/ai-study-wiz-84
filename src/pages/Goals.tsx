@@ -7,7 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { fetchProfile } from "@/lib/database";
 import {
   fetchGoals, createGoal, updateGoalProgress, deleteGoal,
-  getGoalProgress, isGoalExpired, isGoalComplete,
+  getGoalProgress, isGoalExpired, isGoalComplete, syncGoalProgress,
   GOAL_TYPES, type Goal,
 } from "@/lib/goals";
 import { Button } from "@/components/ui/button";
