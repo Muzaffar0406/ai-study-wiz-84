@@ -51,11 +51,11 @@ serve(async (req) => {
     const authHeader = req.headers.get("authorization");
     if (authHeader) {
       try {
-        const supabase = createClient(
-          Deno.env.get("SUPABASE_URL")!,
-          Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!,
-          { global: { headers: { Authorization: authHeader } } }
-        );
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!;
+        const supabase = createClient(supabaseUrl, supabaseKey, {
+          global: { headers: { Authorization: authHeader } },
+        });
         const { data: tasks } = await supabase
           .from("tasks")
           .select("title, subject, priority, due_time, completed")
