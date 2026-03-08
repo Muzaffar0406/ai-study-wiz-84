@@ -42,6 +42,15 @@ const Index = () => {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    setTasks(prev => prev.filter(t => t.id !== id));
+    try {
+      await deleteTask(id);
+    } catch {
+      reloadTasks();
+    }
+  };
+
   const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
   const incompleteTasks = tasks.filter(t => !t.completed).length;
