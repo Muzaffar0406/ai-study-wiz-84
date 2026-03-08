@@ -8,7 +8,7 @@ import { fetchProfile } from "@/lib/database";
 import {
   fetchGoals, createGoal, updateGoalProgress, deleteGoal,
   getGoalProgress, isGoalExpired, isGoalComplete, syncGoalProgress,
-  GOAL_TYPES, type Goal,
+  showGoalReminders, GOAL_TYPES, type Goal,
 } from "@/lib/goals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
