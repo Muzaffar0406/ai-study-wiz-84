@@ -133,5 +133,51 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-card/60 backdrop-blur-xl border border-border/50;
+  }
+  .glass-strong {
+    @apply bg-card/80 backdrop-blur-2xl border border-border/60;
+  }
+  .shimmer {
+    background: linear-gradient(
+      110deg,
+      transparent 33%,
+      hsl(var(--primary) / 0.08) 50%,
+      transparent 67%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s ease-in-out infinite;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary;
+    background-size: 200% auto;
+  }
+  .text-gradient-animated {
+    @apply text-gradient;
+    animation: gradient-shift 4s ease-in-out infinite;
+  }
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-[var(--shadow-medium)] hover:-translate-y-0.5;
+  }
+  .glow-ring {
+    @apply ring-2 ring-primary/20 ring-offset-2 ring-offset-background;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 200% center; }
 }

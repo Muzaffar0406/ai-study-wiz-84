@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, RotateCcw } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 
-const POMODORO_TIME = 25 * 60; // 25 minutes in seconds
-const BREAK_TIME = 5 * 60; // 5 minutes in seconds
+const POMODORO_TIME = 25 * 60;
+const BREAK_TIME = 5 * 60;
 
 export const PomodoroTimer = () => {
   const [timeLeft, setTimeLeft] = useState(POMODORO_TIME);
@@ -14,18 +12,13 @@ export const PomodoroTimer = () => {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
     if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
+      interval = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
     } else if (timeLeft === 0) {
-      // Auto-switch between work and break
       setIsBreak(!isBreak);
       setTimeLeft(isBreak ? POMODORO_TIME : BREAK_TIME);
       setIsRunning(false);
     }
-
     return () => clearInterval(interval);
   }, [isRunning, timeLeft, isBreak]);
 
@@ -40,44 +33,53 @@ export const PomodoroTimer = () => {
     setIsRunning(false);
   };
 
-  const progress = ((isBreak ? BREAK_TIME : POMODORO_TIME) - timeLeft) / (isBreak ? BREAK_TIME : POMODORO_TIME) * 100;
+  const totalTime = isBreak ? BREAK_TIME : POMODORO_TIME;
+  const progress = ((totalTime - timeLeft) / totalTime) * 100;
+  const circumference = 2 * Math.PI * 88;
+  const dashOffset = circumference - (progress / 100) * circumference;
 
   return (
-    <Card className="p-8 text-center space-y-6 bg-gradient-to-br from-card to-muted/20">
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-muted-foreground">
-          {isBreak ? "Break Time" : "Focus Time"}
-        </h3>
-        <div className="text-6xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          {formatTime(timeLeft)}
+    <div className="glass rounded-2xl p-8 text-center space-y-6">
+      {/* Circular progress */}
+      <div className="relative w-52 h-52 mx-auto">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="88" fill="none" className="stroke-muted" strokeWidth="6" />
+          <circle
+            cx="100" cy="100" r="88" fill="none"
+            className={isBreak ? "stroke-accent" : "stroke-primary"}
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={dashOffset}
+            style={{ transition: "stroke-dashoffset 0.5s ease" }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">
+            {isBreak ? "Break" : "Focus"}
+          </span>
+          <span className="text-5xl font-extrabold tracking-tight text-gradient">
+            {formatTime(timeLeft)}
+          </span>
         </div>
       </div>
-
-      <Progress value={progress} className="h-2" />
 
       <div className="flex gap-3 justify-center">
         <Button
           onClick={() => setIsRunning(!isRunning)}
           size="lg"
-          className="bg-gradient-to-r from-primary to-primary-glow hover:shadow-lg"
+          className="rounded-xl px-8 bg-gradient-to-r from-primary to-primary-glow hover:shadow-[0_8px_30px_hsl(var(--primary)/0.3)] transition-all duration-300"
         >
           {isRunning ? (
-            <>
-              <Pause className="h-5 w-5 mr-2" />
-              Pause
-            </>
+            <><Pause className="h-5 w-5 mr-2" />Pause</>
           ) : (
-            <>
-              <Play className="h-5 w-5 mr-2" />
-              Start
-            </>
+            <><Play className="h-5 w-5 mr-2" />Start</>
           )}
         </Button>
-        <Button onClick={handleReset} size="lg" variant="outline">
-          <RotateCcw className="h-5 w-5 mr-2" />
-          Reset
+        <Button onClick={handleReset} size="lg" variant="outline" className="rounded-xl">
+          <RotateCcw className="h-5 w-5 mr-2" />Reset
         </Button>
       </div>
-    </Card>
+    </div>
   );
 };

@@ -1,5 +1,4 @@
 import { LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface QuickActionButtonProps {
   icon: LucideIcon;
@@ -14,19 +13,36 @@ export const QuickActionButton = ({
   onClick, 
   variant = "primary" 
 }: QuickActionButtonProps) => {
-  const variantClasses = {
-    primary: "bg-gradient-to-r from-primary to-primary-glow hover:shadow-lg hover:shadow-primary/25",
-    accent: "bg-gradient-to-r from-accent to-accent-glow hover:shadow-lg hover:shadow-accent/25",
-    success: "bg-gradient-to-r from-success to-success hover:shadow-lg hover:shadow-success/25",
+  const styles = {
+    primary: {
+      bg: "bg-gradient-to-br from-primary to-primary-glow",
+      glow: "hover:shadow-[0_12px_40px_hsl(var(--primary)/0.3)]",
+      iconBg: "bg-primary-foreground/15",
+    },
+    accent: {
+      bg: "bg-gradient-to-br from-accent to-accent-glow",
+      glow: "hover:shadow-[0_12px_40px_hsl(var(--accent)/0.3)]",
+      iconBg: "bg-accent-foreground/15",
+    },
+    success: {
+      bg: "bg-gradient-to-br from-success to-success",
+      glow: "hover:shadow-[0_12px_40px_hsl(var(--success)/0.3)]",
+      iconBg: "bg-success-foreground/15",
+    },
   };
 
+  const s = styles[variant];
+
   return (
-    <Button
+    <button
       onClick={onClick}
-      className={`${variantClasses[variant]} text-white border-0 h-auto py-4 px-6 flex-col gap-2 hover:scale-105 transition-all duration-300 group`}
+      className={`${s.bg} ${s.glow} relative overflow-hidden text-primary-foreground rounded-2xl p-6 flex items-center gap-4 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 group cursor-pointer border-0`}
     >
-      <Icon className="h-6 w-6 group-hover:scale-110 transition-transform" />
-      <span className="text-sm font-semibold">{label}</span>
-    </Button>
+      <div className="absolute inset-0 shimmer pointer-events-none" />
+      <div className={`${s.iconBg} rounded-xl p-3 group-hover:scale-110 transition-transform duration-300`}>
+        <Icon className="h-6 w-6" />
+      </div>
+      <span className="text-sm font-bold tracking-wide">{label}</span>
+    </button>
   );
 };
