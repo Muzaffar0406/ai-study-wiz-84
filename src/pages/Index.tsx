@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { StatCard } from "@/components/StatCard";
 import { QuickActionButton } from "@/components/QuickActionButton";
 import { TaskCard } from "@/components/TaskCard";
