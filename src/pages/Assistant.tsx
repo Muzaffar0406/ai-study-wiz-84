@@ -136,9 +136,7 @@ const Assistant = () => {
                     }`}
                   >
                     {msg.role === "assistant" ? (
-                      <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_ul]:space-y-1 [&_ol]:space-y-1">
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
-                      </div>
+                      <ChatMarkdown content={msg.content} />
                     ) : (
                       msg.content
                     )}
