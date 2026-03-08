@@ -171,3 +171,90 @@ export async function syncGoalProgress(userId: string, goals: Goal[]): Promise<G
 
   return synced;
 }
+
+export interface GoalReminder {
+  goal: Goal;
+  urgency: "overdue" | "today" | "tomorrow" | "this_week";
+  message: string;
+}
+
+/**
+ * Check goals for approaching deadlines and return reminders.
+ * Uses sessionStorage to avoid showing the same reminders repeatedly in one session.
+ */
+export function checkGoalReminders(goals: Goal[]): GoalReminder[] {
+  const now = new Date();
+  const reminders: GoalReminder[] = [];
+
+  for (const goal of goals) {
+    if (!goal.deadline || isGoalComplete(goal)) continue;
+
+    const deadline = new Date(goal.deadline);
+    const diffMs = deadline.getTime() - now.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+    const diffDays = diffHours / 24;
+
+    if (diffMs < 0) {
+      reminders.push({
+        goal,
+        urgency: "overdue",
+        message: `"${goal.title}" is overdue! Deadline has passed.`,
+      });
+    } else if (diffHours <= 24) {
+      reminders.push({
+        goal,
+        urgency: "today",
+        message: `"${goal.title}" is due today! ${getGoalProgress(goal)}% complete.`,
+      });
+    } else if (diffDays <= 2) {
+      reminders.push({
+        goal,
+        urgency: "tomorrow",
+        message: `"${goal.title}" is due tomorrow. ${getGoalProgress(goal)}% complete.`,
+      });
+    } else if (diffDays <= 7) {
+      reminders.push({
+        goal,
+        urgency: "this_week",
+        message: `"${goal.title}" is due in ${Math.ceil(diffDays)} days. ${getGoalProgress(goal)}% complete.`,
+      });
+    }
+  }
+
+  return reminders;
+}
+
+/** Show reminders as toasts, deduplicated per session */
+export function showGoalReminders(
+  goals: Goal[],
+  toastFn: (opts: { title: string; description: string; variant?: "default" | "destructive" }) => void
+) {
+  const reminders = checkGoalReminders(goals);
+  const shownKey = "goal_reminders_shown";
+  const shownRaw = sessionStorage.getItem(shownKey);
+  const shown: Set<string> = shownRaw ? new Set(JSON.parse(shownRaw)) : new Set();
+
+  const newShown: string[] = [];
+
+  for (const r of reminders) {
+    if (shown.has(r.goal.id)) continue;
+    newShown.push(r.goal.id);
+
+    const title =
+      r.urgency === "overdue" ? "⚠️ Goal Overdue" :
+      r.urgency === "today" ? "🔔 Due Today" :
+      r.urgency === "tomorrow" ? "📅 Due Tomorrow" :
+      "📋 Due This Week";
+
+    toastFn({
+      title,
+      description: r.message,
+      variant: r.urgency === "overdue" ? "destructive" : "default",
+    });
+  }
+
+  if (newShown.length > 0) {
+    const all = [...shown, ...newShown];
+    sessionStorage.setItem(shownKey, JSON.stringify(all));
+  }
+}
