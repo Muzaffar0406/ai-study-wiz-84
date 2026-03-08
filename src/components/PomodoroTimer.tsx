@@ -20,26 +20,39 @@ export const PomodoroTimer = ({ onSessionComplete }: PomodoroTimerProps) => {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const sessionIdRef = useRef(sessionId);
   const isBreakRef = useRef(isBreak);
+  const onSessionCompleteRef = useRef(onSessionComplete);
 
-  // Keep refs in sync
   useEffect(() => { sessionIdRef.current = sessionId; }, [sessionId]);
   useEffect(() => { isBreakRef.current = isBreak; }, [isBreak]);
+  useEffect(() => { onSessionCompleteRef.current = onSessionComplete; }, [onSessionComplete]);
 
   const handleTimerEnd = useCallback(async () => {
-    if (!isBreak && sessionId) {
+    if (!isBreakRef.current && sessionIdRef.current) {
       try {
-        await completeStudySession(sessionId);
+        await completeStudySession(sessionIdRef.current);
         toast({ title: "Focus session complete! 🎉", description: "Great job staying focused." });
         setSessionId(null);
-        onSessionComplete?.();
+        onSessionCompleteRef.current?.();
       } catch {
         console.error("Failed to complete session");
       }
     }
-    setIsBreak(!isBreak);
-    setTimeLeft(isBreak ? POMODORO_TIME : BREAK_TIME);
+    setIsBreak((prev) => {
+      setTimeLeft(prev ? POMODORO_TIME : BREAK_TIME);
+      return !prev;
+    });
     setIsRunning(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isRunning && timeLeft > 0) {
+      interval = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+    } else if (timeLeft === 0) {
+      handleTimerEnd();
+    }
+    return () => clearInterval(interval);
+  }, [isRunning, timeLeft, handleTimerEnd]);
 
   const handleStart = async () => {
     if (!isRunning && !isBreak && !sessionId && user) {
