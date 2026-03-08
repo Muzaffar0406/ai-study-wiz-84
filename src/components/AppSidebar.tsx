@@ -5,7 +5,7 @@ import { useSidebarState } from "@/hooks/useSidebarState";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { Home, BookOpen, CheckSquare, Bot, Settings, LogOut, Menu, X, FileText, CalendarDays, BarChart3, Layers } from "lucide-react";
+import { Home, BookOpen, CheckSquare, Bot, Settings, LogOut, Menu, X, FileText, CalendarDays, BarChart3, Layers, Target } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AppSidebarProps {
