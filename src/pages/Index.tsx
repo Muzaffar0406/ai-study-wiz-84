@@ -17,6 +17,7 @@ import type { DbTask } from "@/lib/database";
 
 const Index = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<DbTask[]>([]);
   const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
   const [addTaskOpen, setAddTaskOpen] = useState(false);
