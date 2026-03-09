@@ -329,9 +329,10 @@ const NotesContent = () => {
               </DialogContent>
             </Dialog>
           </div>
-        </header>
+        </div>
+      </PageHeader>
 
-        <div className={`${isMobile ? "p-4" : "p-8"} space-y-4`}>
+      <PageContent className="space-y-4">
           {loading ? (
             <div className="flex justify-center py-16">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
