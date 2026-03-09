@@ -280,8 +280,7 @@ const CalendarContent = () => {
               />
             </div>
           )}
-        </div>
-      </main>
+      </PageContent>
 
       {/* Task Detail Dialog */}
       <Dialog open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
