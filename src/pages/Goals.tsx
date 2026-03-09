@@ -23,6 +23,7 @@ import {
   Target, Plus, Loader2, Trash2, Clock, CheckSquare,
   GraduationCap, Trophy, AlertCircle, TrendingUp, Pencil,
 } from "lucide-react";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 const typeIcons: Record<string, React.ElementType> = {
   weekly_study: Clock,
