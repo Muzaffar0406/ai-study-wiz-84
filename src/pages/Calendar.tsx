@@ -10,7 +10,6 @@ import { AppLayout, PageHeader, PageContent, useLayout } from "@/components/AppL
 import { AddTaskDialog } from "@/components/AddTaskDialog";
 import { fetchTasks, toggleTaskCompleted, deleteTask } from "@/lib/database";
 import { supabase } from "@/integrations/supabase/client";
-import { supabase } from "@/integrations/supabase/client";
 import { CalendarDays, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
