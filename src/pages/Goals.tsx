@@ -169,9 +169,9 @@ const GoalsContent = () => {
               </DialogContent>
             </Dialog>
           </div>
-        </header>
+      </PageHeader>
 
-        <div className={`${isMobile ? "p-4" : "p-8"} space-y-8`}>
+      <PageContent className="space-y-8">
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
           ) : goals.length === 0 ? (
