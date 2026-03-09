@@ -36,12 +36,8 @@ function getFileIcon(fileName: string | null) {
   return <FileText className="h-5 w-5 text-primary" />;
 }
 
-const Notes = () => {
-  const { user } = useAuth();
-  const isMobile = useIsMobile();
-  const { collapsed } = useSidebarState();
-  const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
-  const [chatOpen, setChatOpen] = useState(false);
+const NotesContent = () => {
+  const { user, isMobile } = useLayout();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
@@ -58,9 +54,6 @@ const Notes = () => {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [generatingCardsId, setGeneratingCardsId] = useState<string | null>(null);
   const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
-
-  const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
-  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
 
   useEffect(() => {
     if (!user) return;
