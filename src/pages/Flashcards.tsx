@@ -62,6 +62,8 @@ const Flashcards = () => {
   const [newFront, setNewFront] = useState("");
   const [newBack, setNewBack] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleteCardId, setDeleteCardId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
