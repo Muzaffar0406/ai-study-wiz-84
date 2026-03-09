@@ -26,16 +26,11 @@ const typeIcons: Record<string, React.ElementType> = {
   exam_prep: GraduationCap,
 };
 
-const Goals = () => {
-  const { user } = useAuth();
-  const isMobile = useIsMobile();
-  const { collapsed } = useSidebarState();
-  const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
-  const [chatOpen, setChatOpen] = useState(false);
+const GoalsContent = () => {
+  const { user, isMobile } = useLayout();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Add dialog
   const [addOpen, setAddOpen] = useState(false);
   const [newType, setNewType] = useState("weekly_study");
   const [newTitle, setNewTitle] = useState("");
@@ -43,13 +38,9 @@ const Goals = () => {
   const [newDeadline, setNewDeadline] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Update dialog
   const [editGoal, setEditGoal] = useState<Goal | null>(null);
   const [editValue, setEditValue] = useState("");
   const [deleteGoalId, setDeleteGoalId] = useState<string | null>(null);
-
-  const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
-  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
 
   const loadData = useCallback(async () => {
     if (!user) return;
