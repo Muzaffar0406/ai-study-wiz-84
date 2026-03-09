@@ -222,18 +222,40 @@ const VideoSummarizerContent = () => {
           {result && !isLoading && (
             <Card className="border-border bg-card shadow-[var(--shadow-soft)] overflow-hidden animate-fade-in">
               <div className="p-4 bg-muted/30 border-b border-border">
-                <h2 className="font-semibold text-foreground truncate">{result.title}</h2>
-                {result.description && (
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{result.description}</p>
-                )}
-                <a
-                  href={result.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-primary hover:underline mt-1 inline-block"
-                >
-                  {result.url}
-                </a>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="font-semibold text-foreground truncate">{result.title}</h2>
+                    {result.description && (
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{result.description}</p>
+                    )}
+                    <a
+                      href={result.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-primary hover:underline mt-1 inline-block"
+                    >
+                      {result.url}
+                    </a>
+                  </div>
+                  <Button
+                    onClick={handleSaveFlashcards}
+                    disabled={isSavingFlashcards}
+                    size="sm"
+                    className="gap-2 flex-shrink-0"
+                  >
+                    {isSavingFlashcards ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        Save Flashcards
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
               <div className="p-6">
                 <ChatMarkdown content={result.summary} />
