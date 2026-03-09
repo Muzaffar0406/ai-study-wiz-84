@@ -148,19 +148,27 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
       <>
         <button
           onClick={() => setMobileOpen(true)}
-          className="fixed top-3 left-3 z-50 p-2 rounded-xl bg-card shadow-[var(--shadow-medium)] border border-border/50"
+          className="fixed top-3 left-3 z-50 p-3 rounded-xl bg-card shadow-[var(--shadow-medium)] border border-border/50 active:scale-95 transition-transform"
         >
           <Menu className="h-5 w-5 text-foreground" />
         </button>
 
-        {mobileOpen && (
-          <div className="fixed inset-0 z-50 flex">
-            <div className="w-[260px] bg-[hsl(var(--sidebar-bg))] h-full">
-              {sidebarContent}
-            </div>
-            <div className="flex-1 bg-foreground/30 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          </div>
-        )}
+        {/* Overlay */}
+        <div
+          className={`fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm transition-opacity duration-300 ${
+            mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
+          onClick={() => setMobileOpen(false)}
+        />
+
+        {/* Drawer */}
+        <div
+          className={`fixed top-0 left-0 bottom-0 z-50 w-[280px] bg-[hsl(var(--sidebar-bg))] shadow-2xl transition-transform duration-300 ease-out ${
+            mobileOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          {sidebarContent}
+        </div>
       </>
     );
   }
