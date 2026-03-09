@@ -1,11 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSidebarState } from "@/hooks/useSidebarState";
-import { useAuth } from "@/hooks/useAuth";
-import { AppSidebar } from "@/components/AppSidebar";
-import { AIChatBot } from "@/components/AIChatBot";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { fetchProfile } from "@/lib/database";
+import { AppLayout, PageHeader, PageContent, useLayout } from "@/components/AppLayout";
 import {
   fetchFlashcards,
   fetchDueFlashcards,
@@ -38,13 +33,9 @@ const QUALITY_BUTTONS: { quality: ReviewQuality; label: string; description: str
   { quality: 5, label: "Easy", description: "Effortless recall", color: "bg-primary hover:bg-primary/80 text-primary-foreground" },
 ];
 
-const Flashcards = () => {
-  const { user } = useAuth();
+const FlashcardsContent = () => {
+  const { user, isMobile } = useLayout();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
-  const { collapsed } = useSidebarState();
-  const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
-  const [chatOpen, setChatOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const [allCards, setAllCards] = useState<Flashcard[]>([]);
@@ -64,9 +55,6 @@ const Flashcards = () => {
   const [saving, setSaving] = useState(false);
   const [deleteCardId, setDeleteCardId] = useState<string | null>(null);
 
-  const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
-  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
-
   const loadData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
@@ -85,9 +73,7 @@ const Flashcards = () => {
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
-    fetchProfile(user.id).then(setProfile).catch(console.error);
-    loadData();
+    if (user) loadData();
   }, [user, loadData]);
 
   const handleAddCard = async (e: React.FormEvent) => {
@@ -157,11 +143,8 @@ const Flashcards = () => {
   const currentCard = reviewQueue[currentIndex];
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppSidebar displayName={displayName} avatarUrl={avatarUrl} onAIClick={() => setChatOpen(true)} />
-
-      <main className={`min-h-screen transition-all duration-300 ${isMobile ? "" : collapsed ? "ml-[68px]" : "ml-[240px]"}`}>
-        <header className={`sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 py-4 ${isMobile ? "px-4 pt-14" : "px-8"}`}>
+    <>
+      <PageHeader>
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
               <h1 className={`${isMobile ? "text-xl" : "text-2xl"} font-bold text-foreground flex items-center gap-2`}>
@@ -238,9 +221,9 @@ const Flashcards = () => {
               </div>
             )}
           </div>
-        </header>
+      </PageHeader>
 
-        <div className={`${isMobile ? "p-4" : "p-8"} space-y-6`}>
+      <PageContent className="space-y-6">
           {loading ? (
             <div className="flex justify-center py-16">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -398,8 +381,7 @@ const Flashcards = () => {
               )}
             </>
           ) : null}
-        </div>
-      </main>
+      </PageContent>
 
       <DeleteConfirmDialog
         open={!!deleteCardId}
@@ -408,9 +390,14 @@ const Flashcards = () => {
         title="Delete flashcard?"
         description="This flashcard and its review history will be permanently deleted."
       />
-      <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
-    </div>
+    </>
   );
 };
+
+const Flashcards = () => (
+  <AppLayout>
+    <FlashcardsContent />
+  </AppLayout>
+);
 
 export default Flashcards;

@@ -6,13 +6,9 @@ import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 
-import { useSidebarState } from "@/hooks/useSidebarState";
-import { useAuth } from "@/hooks/useAuth";
-import { AppSidebar } from "@/components/AppSidebar";
-import { AIChatBot } from "@/components/AIChatBot";
+import { AppLayout, PageHeader, PageContent, useLayout } from "@/components/AppLayout";
 import { AddTaskDialog } from "@/components/AddTaskDialog";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { fetchTasks, fetchProfile, toggleTaskCompleted, deleteTask } from "@/lib/database";
+import { fetchTasks, toggleTaskCompleted, deleteTask } from "@/lib/database";
 import { supabase } from "@/integrations/supabase/client";
 import { CalendarDays, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -45,12 +41,8 @@ const PRIORITY_COLORS: Record<string, string> = {
   low: "hsl(165 60% 48%)",
 };
 
-const CalendarPage = () => {
-  const { user } = useAuth();
-  const isMobile = useIsMobile();
-  const { collapsed } = useSidebarState();
-  const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
-  const [chatOpen, setChatOpen] = useState(false);
+const CalendarContent = () => {
+  const { user, isMobile } = useLayout();
   const [tasks, setTasks] = useState<DbTask[]>([]);
   const [studySessions, setStudySessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,9 +51,6 @@ const CalendarPage = () => {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [view, setView] = useState<(typeof Views)[keyof typeof Views]>(isMobile ? Views.WEEK : Views.MONTH);
   const [currentDate, setCurrentDate] = useState(new Date());
-
-  const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
-  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -86,9 +75,7 @@ const CalendarPage = () => {
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
-    fetchProfile(user.id).then(setProfile).catch(console.error);
-    loadData();
+    if (user) loadData();
   }, [user, loadData]);
 
   const events: CalendarEvent[] = useMemo(() => {
@@ -218,46 +205,33 @@ const CalendarPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppSidebar displayName={displayName} avatarUrl={avatarUrl} onAIClick={() => setChatOpen(true)} />
-
-      <main
-        className={`min-h-screen transition-all duration-300 ${
-          isMobile ? "" : collapsed ? "ml-[68px]" : "ml-[240px]"
-        }`}
-      >
-        <header
-          className={`sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 py-4 ${
-            isMobile ? "px-4 pt-14" : "px-8"
-          }`}
-        >
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <h1
-                className={`${isMobile ? "text-xl" : "text-2xl"} font-bold text-foreground flex items-center gap-2`}
-              >
-                <CalendarDays className="h-6 w-6 text-primary" />
-                Calendar
-              </h1>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                View tasks and study sessions on your schedule
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <AddTaskDialog
-                onTaskAdded={loadData}
-                open={addTaskOpen}
-                onOpenChange={(open) => {
-                  setAddTaskOpen(open);
-                  if (!open) setSelectedDate(null);
-                }}
-                defaultDate={selectedDate ?? undefined}
-              />
-            </div>
+    <>
+      <PageHeader>
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className={`${isMobile ? "text-xl" : "text-2xl"} font-bold text-foreground flex items-center gap-2`}>
+              <CalendarDays className="h-6 w-6 text-primary" />
+              Calendar
+            </h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              View tasks and study sessions on your schedule
+            </p>
           </div>
-        </header>
+          <div className="flex items-center gap-2">
+            <AddTaskDialog
+              onTaskAdded={loadData}
+              open={addTaskOpen}
+              onOpenChange={(open) => {
+                setAddTaskOpen(open);
+                if (!open) setSelectedDate(null);
+              }}
+              defaultDate={selectedDate ?? undefined}
+            />
+          </div>
+        </div>
+      </PageHeader>
 
-        <div className={`${isMobile ? "p-4" : "p-8"}`}>
+        <PageContent>
           {loading ? (
             <div className="flex justify-center py-16">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -305,8 +279,7 @@ const CalendarPage = () => {
               />
             </div>
           )}
-        </div>
-      </main>
+      </PageContent>
 
       {/* Task Detail Dialog */}
       <Dialog open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
@@ -383,10 +356,14 @@ const CalendarPage = () => {
           )}
         </DialogContent>
       </Dialog>
-
-      <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
-    </div>
+    </>
   );
 };
+
+const CalendarPage = () => (
+  <AppLayout>
+    <CalendarContent />
+  </AppLayout>
+);
 
 export default CalendarPage;

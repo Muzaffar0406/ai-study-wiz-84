@@ -1,16 +1,11 @@
 import { useState, useEffect } from "react";
-import { useSidebarState } from "@/hooks/useSidebarState";
-import { useAuth } from "@/hooks/useAuth";
-import { AppSidebar } from "@/components/AppSidebar";
-import { AIChatBot } from "@/components/AIChatBot";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { AppLayout, PageHeader, PageContent, useLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchProfile } from "@/lib/database";
 import { createFlashcardsBatch } from "@/lib/flashcards";
 import ReactMarkdown from "react-markdown";
 import {
@@ -41,12 +36,8 @@ function getFileIcon(fileName: string | null) {
   return <FileText className="h-5 w-5 text-primary" />;
 }
 
-const Notes = () => {
-  const { user } = useAuth();
-  const isMobile = useIsMobile();
-  const { collapsed } = useSidebarState();
-  const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
-  const [chatOpen, setChatOpen] = useState(false);
+const NotesContent = () => {
+  const { user, isMobile } = useLayout();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
@@ -64,12 +55,8 @@ const Notes = () => {
   const [generatingCardsId, setGeneratingCardsId] = useState<string | null>(null);
   const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
 
-  const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
-  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
-
   useEffect(() => {
     if (!user) return;
-    fetchProfile(user.id).then(setProfile).catch(console.error);
     loadNotes();
   }, [user]);
 
@@ -245,11 +232,18 @@ const Notes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppSidebar displayName={displayName} avatarUrl={avatarUrl} onAIClick={() => setChatOpen(true)} />
-
-      <main className={`min-h-screen transition-all duration-300 ${isMobile ? "" : collapsed ? "ml-[68px]" : "ml-[240px]"}`}>
-        <header className={`sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 py-4 ${isMobile ? "px-4 pt-14" : "px-8"}`}>
+    <>
+      <PageHeader>
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className={`${isMobile ? "text-xl" : "text-2xl"} font-bold text-foreground flex items-center gap-2`}>
+              <BookOpen className="h-6 w-6 text-primary" />
+              My Notes
+            </h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Upload your notes (PDF, DOCX, TXT, Image) and summarize them with AI
+            </p>
+          </div>
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
               <h1 className={`${isMobile ? "text-xl" : "text-2xl"} font-bold text-foreground flex items-center gap-2`}>
@@ -335,9 +329,10 @@ const Notes = () => {
               </DialogContent>
             </Dialog>
           </div>
-        </header>
+        </div>
+      </PageHeader>
 
-        <div className={`${isMobile ? "p-4" : "p-8"} space-y-4`}>
+      <PageContent className="space-y-4">
           {loading ? (
             <div className="flex justify-center py-16">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -499,8 +494,7 @@ const Notes = () => {
               })}
             </div>
           )}
-        </div>
-      </main>
+      </PageContent>
 
       <DeleteConfirmDialog
         open={!!deleteNoteId}
@@ -509,9 +503,14 @@ const Notes = () => {
         title="Delete note?"
         description="This note and its attached file will be permanently deleted."
       />
-      <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
-    </div>
+    </>
   );
 };
+
+const Notes = () => (
+  <AppLayout>
+    <NotesContent />
+  </AppLayout>
+);
 
 export default Notes;

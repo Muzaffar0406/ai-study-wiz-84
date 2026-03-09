@@ -1,10 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useSidebarState } from "@/hooks/useSidebarState";
-import { useAuth } from "@/hooks/useAuth";
-import { AppSidebar } from "@/components/AppSidebar";
-import { AIChatBot } from "@/components/AIChatBot";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { fetchProfile } from "@/lib/database";
+import { AppLayout, PageHeader, PageContent, useLayout } from "@/components/AppLayout";
 import {
   fetchGoals, createGoal, updateGoalProgress, deleteGoal,
   getGoalProgress, isGoalExpired, isGoalComplete, syncGoalProgress,
@@ -31,16 +26,11 @@ const typeIcons: Record<string, React.ElementType> = {
   exam_prep: GraduationCap,
 };
 
-const Goals = () => {
-  const { user } = useAuth();
-  const isMobile = useIsMobile();
-  const { collapsed } = useSidebarState();
-  const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
-  const [chatOpen, setChatOpen] = useState(false);
+const GoalsContent = () => {
+  const { user, isMobile } = useLayout();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Add dialog
   const [addOpen, setAddOpen] = useState(false);
   const [newType, setNewType] = useState("weekly_study");
   const [newTitle, setNewTitle] = useState("");
@@ -48,13 +38,9 @@ const Goals = () => {
   const [newDeadline, setNewDeadline] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Update dialog
   const [editGoal, setEditGoal] = useState<Goal | null>(null);
   const [editValue, setEditValue] = useState("");
   const [deleteGoalId, setDeleteGoalId] = useState<string | null>(null);
-
-  const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
-  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -72,9 +58,7 @@ const Goals = () => {
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
-    loadData();
-    fetchProfile(user.id).then(setProfile).catch(console.error);
+    if (user) loadData();
   }, [user, loadData]);
 
   const handleCreate = async () => {
@@ -131,11 +115,8 @@ const Goals = () => {
     : 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppSidebar displayName={displayName} avatarUrl={avatarUrl} onAIClick={() => setChatOpen(true)} />
-
-      <main className={`min-h-screen transition-all duration-300 ${isMobile ? "" : collapsed ? "ml-[68px]" : "ml-[240px]"}`}>
-        <header className={`sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 py-4 ${isMobile ? "px-4 pt-14" : "px-8"}`}>
+    <>
+      <PageHeader>
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
               <h1 className={`${isMobile ? "text-xl" : "text-2xl"} font-bold text-foreground flex items-center gap-2`}>
@@ -188,9 +169,9 @@ const Goals = () => {
               </DialogContent>
             </Dialog>
           </div>
-        </header>
+      </PageHeader>
 
-        <div className={`${isMobile ? "p-4" : "p-8"} space-y-8`}>
+      <PageContent className="space-y-8">
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
           ) : goals.length === 0 ? (
@@ -225,8 +206,7 @@ const Goals = () => {
               )}
             </>
           )}
-        </div>
-      </main>
+      </PageContent>
 
       {/* Edit Progress Dialog */}
       <Dialog open={!!editGoal} onOpenChange={open => { if (!open) setEditGoal(null); }}>
@@ -252,10 +232,15 @@ const Goals = () => {
         title="Delete goal?"
         description="This goal and its progress will be permanently deleted."
       />
-      <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
-    </div>
+    </>
   );
 };
+
+const Goals = () => (
+  <AppLayout>
+    <GoalsContent />
+  </AppLayout>
+);
 
 const SUMMARY_STYLES: Record<string, { bg: string; text: string }> = {
   primary: { bg: "bg-primary/10", text: "text-primary" },
