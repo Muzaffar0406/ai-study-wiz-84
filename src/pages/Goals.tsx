@@ -245,6 +245,13 @@ const Goals = () => {
         </DialogContent>
       </Dialog>
 
+      <DeleteConfirmDialog
+        open={!!deleteGoalId}
+        onOpenChange={(open) => { if (!open) setDeleteGoalId(null); }}
+        onConfirm={() => { if (deleteGoalId) { handleDelete(deleteGoalId); setDeleteGoalId(null); } }}
+        title="Delete goal?"
+        description="This goal and its progress will be permanently deleted."
+      />
       <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );
