@@ -42,12 +42,8 @@ const PRIORITY_COLORS: Record<string, string> = {
   low: "hsl(165 60% 48%)",
 };
 
-const CalendarPage = () => {
-  const { user } = useAuth();
-  const isMobile = useIsMobile();
-  const { collapsed } = useSidebarState();
-  const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
-  const [chatOpen, setChatOpen] = useState(false);
+const CalendarContent = () => {
+  const { user, isMobile } = useLayout();
   const [tasks, setTasks] = useState<DbTask[]>([]);
   const [studySessions, setStudySessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,9 +52,6 @@ const CalendarPage = () => {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [view, setView] = useState<(typeof Views)[keyof typeof Views]>(isMobile ? Views.WEEK : Views.MONTH);
   const [currentDate, setCurrentDate] = useState(new Date());
-
-  const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
-  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
 
   const loadData = useCallback(async () => {
     if (!user) return;
