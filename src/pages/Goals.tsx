@@ -221,7 +221,7 @@ const Goals = () => {
 
               {/* Expired Goals */}
               {expiredGoals.length > 0 && (
-                <GoalSection title="Expired" goals={expiredGoals} onEdit={g => { setEditGoal(g); setEditValue(String(g.current_value)); }} onDelete={handleDelete} />
+                <GoalSection title="Expired" goals={expiredGoals} onEdit={g => { setEditGoal(g); setEditValue(String(g.current_value)); }} onDelete={id => setDeleteGoalId(id)} />
               )}
             </>
           )}
