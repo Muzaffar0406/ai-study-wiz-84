@@ -17,6 +17,7 @@ import {
   Plus, FileText, Sparkles, Trash2, Upload, Loader2, BookOpen,
   Download, X, Eye, EyeOff, File, Image as ImageIcon, Layers
 } from "lucide-react";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 interface Note {
   id: string;
