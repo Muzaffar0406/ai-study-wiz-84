@@ -357,10 +357,14 @@ const CalendarContent = () => {
           )}
         </DialogContent>
       </Dialog>
-
-      <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
-    </div>
+    </>
   );
 };
+
+const CalendarPage = () => (
+  <AppLayout>
+    <CalendarContent />
+  </AppLayout>
+);
 
 export default CalendarPage;
