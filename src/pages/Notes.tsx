@@ -57,7 +57,6 @@ const NotesContent = () => {
 
   useEffect(() => {
     if (!user) return;
-    fetchProfile(user.id).then(setProfile).catch(console.error);
     loadNotes();
   }, [user]);
 
