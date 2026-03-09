@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
 import { supabase } from "@/integrations/supabase/client";
-import { Video, Loader2, LinkIcon, Sparkles, AlertCircle } from "lucide-react";
+import { Video, Loader2, LinkIcon, Sparkles, AlertCircle, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { createFlashcardsBatch } from "@/lib/flashcards";
 
 interface SummaryResult {
   summary: string;
