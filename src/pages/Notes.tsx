@@ -494,7 +494,6 @@ const NotesContent = () => {
               })}
             </div>
           )}
-        </div>
       </PageContent>
 
       <DeleteConfirmDialog
