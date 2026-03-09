@@ -33,13 +33,9 @@ const QUALITY_BUTTONS: { quality: ReviewQuality; label: string; description: str
   { quality: 5, label: "Easy", description: "Effortless recall", color: "bg-primary hover:bg-primary/80 text-primary-foreground" },
 ];
 
-const Flashcards = () => {
-  const { user } = useAuth();
+const FlashcardsContent = () => {
+  const { user, isMobile } = useLayout();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
-  const { collapsed } = useSidebarState();
-  const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
-  const [chatOpen, setChatOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const [allCards, setAllCards] = useState<Flashcard[]>([]);
@@ -58,9 +54,6 @@ const Flashcards = () => {
   const [newBack, setNewBack] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleteCardId, setDeleteCardId] = useState<string | null>(null);
-
-  const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
-  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
 
   const loadData = useCallback(async () => {
     if (!user) return;
