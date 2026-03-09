@@ -502,6 +502,13 @@ const Notes = () => {
         </div>
       </main>
 
+      <DeleteConfirmDialog
+        open={!!deleteNoteId}
+        onOpenChange={(open) => { if (!open) setDeleteNoteId(null); }}
+        onConfirm={() => { if (deleteNoteId) { handleDelete(deleteNoteId); setDeleteNoteId(null); } }}
+        title="Delete note?"
+        description="This note and its attached file will be permanently deleted."
+      />
       <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );
