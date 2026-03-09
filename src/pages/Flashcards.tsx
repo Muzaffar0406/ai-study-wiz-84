@@ -27,6 +27,7 @@ import {
   Layers, Plus, Loader2, Trash2, Play, RotateCcw, ChevronLeft,
   CheckCircle2, XCircle, Brain, Zap, Clock,
 } from "lucide-react";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 type ViewMode = "deck" | "review";
 
