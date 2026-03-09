@@ -73,9 +73,7 @@ const FlashcardsContent = () => {
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
-    fetchProfile(user.id).then(setProfile).catch(console.error);
-    loadData();
+    if (user) loadData();
   }, [user, loadData]);
 
   const handleAddCard = async (e: React.FormEvent) => {
