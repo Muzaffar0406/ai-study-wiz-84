@@ -23,6 +23,7 @@ import {
   Target, Plus, Loader2, Trash2, Clock, CheckSquare,
   GraduationCap, Trophy, AlertCircle, TrendingUp, Pencil,
 } from "lucide-react";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 const typeIcons: Record<string, React.ElementType> = {
   weekly_study: Clock,
@@ -50,6 +51,7 @@ const Goals = () => {
   // Update dialog
   const [editGoal, setEditGoal] = useState<Goal | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [deleteGoalId, setDeleteGoalId] = useState<string | null>(null);
 
   const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
@@ -209,17 +211,17 @@ const Goals = () => {
 
               {/* Active Goals */}
               {activeGoals.length > 0 && (
-                <GoalSection title="Active Goals" goals={activeGoals} onEdit={g => { setEditGoal(g); setEditValue(String(g.current_value)); }} onDelete={handleDelete} />
+                <GoalSection title="Active Goals" goals={activeGoals} onEdit={g => { setEditGoal(g); setEditValue(String(g.current_value)); }} onDelete={id => setDeleteGoalId(id)} />
               )}
 
               {/* Completed Goals */}
               {completedGoals.length > 0 && (
-                <GoalSection title="Completed 🎉" goals={completedGoals} onEdit={g => { setEditGoal(g); setEditValue(String(g.current_value)); }} onDelete={handleDelete} />
+                <GoalSection title="Completed 🎉" goals={completedGoals} onEdit={g => { setEditGoal(g); setEditValue(String(g.current_value)); }} onDelete={id => setDeleteGoalId(id)} />
               )}
 
               {/* Expired Goals */}
               {expiredGoals.length > 0 && (
-                <GoalSection title="Expired" goals={expiredGoals} onEdit={g => { setEditGoal(g); setEditValue(String(g.current_value)); }} onDelete={handleDelete} />
+                <GoalSection title="Expired" goals={expiredGoals} onEdit={g => { setEditGoal(g); setEditValue(String(g.current_value)); }} onDelete={id => setDeleteGoalId(id)} />
               )}
             </>
           )}
@@ -243,6 +245,13 @@ const Goals = () => {
         </DialogContent>
       </Dialog>
 
+      <DeleteConfirmDialog
+        open={!!deleteGoalId}
+        onOpenChange={(open) => { if (!open) setDeleteGoalId(null); }}
+        onConfirm={() => { if (deleteGoalId) { handleDelete(deleteGoalId); setDeleteGoalId(null); } }}
+        title="Delete goal?"
+        description="This goal and its progress will be permanently deleted."
+      />
       <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );

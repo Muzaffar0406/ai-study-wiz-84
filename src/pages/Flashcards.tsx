@@ -27,6 +27,7 @@ import {
   Layers, Plus, Loader2, Trash2, Play, RotateCcw, ChevronLeft,
   CheckCircle2, XCircle, Brain, Zap, Clock,
 } from "lucide-react";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 type ViewMode = "deck" | "review";
 
@@ -61,6 +62,7 @@ const Flashcards = () => {
   const [newFront, setNewFront] = useState("");
   const [newBack, setNewBack] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleteCardId, setDeleteCardId] = useState<string | null>(null);
 
   const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
@@ -374,7 +376,7 @@ const Flashcards = () => {
                               size="sm"
                               variant="ghost"
                               className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => handleDeleteCard(card.id)}
+                              onClick={() => setDeleteCardId(card.id)}
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
@@ -399,6 +401,13 @@ const Flashcards = () => {
         </div>
       </main>
 
+      <DeleteConfirmDialog
+        open={!!deleteCardId}
+        onOpenChange={(open) => { if (!open) setDeleteCardId(null); }}
+        onConfirm={() => { if (deleteCardId) { handleDeleteCard(deleteCardId); setDeleteCardId(null); } }}
+        title="Delete flashcard?"
+        description="This flashcard and its review history will be permanently deleted."
+      />
       <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );
