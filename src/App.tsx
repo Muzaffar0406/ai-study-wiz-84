@@ -16,6 +16,7 @@ import Analytics from "./pages/Analytics";
 import Flashcards from "./pages/Flashcards";
 import Goals from "./pages/Goals";
 import Assistant from "./pages/Assistant";
+import VideoSummarizer from "./pages/VideoSummarizer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
