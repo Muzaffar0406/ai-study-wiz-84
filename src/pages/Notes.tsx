@@ -495,7 +495,7 @@ const NotesContent = () => {
             </div>
           )}
         </div>
-      </main>
+      </PageContent>
 
       <DeleteConfirmDialog
         open={!!deleteNoteId}
@@ -504,9 +504,14 @@ const NotesContent = () => {
         title="Delete note?"
         description="This note and its attached file will be permanently deleted."
       />
-      <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
-    </div>
+    </>
   );
 };
+
+const Notes = () => (
+  <AppLayout>
+    <NotesContent />
+  </AppLayout>
+);
 
 export default Notes;
