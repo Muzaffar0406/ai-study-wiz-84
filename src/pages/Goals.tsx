@@ -211,7 +211,7 @@ const Goals = () => {
 
               {/* Active Goals */}
               {activeGoals.length > 0 && (
-                <GoalSection title="Active Goals" goals={activeGoals} onEdit={g => { setEditGoal(g); setEditValue(String(g.current_value)); }} onDelete={handleDelete} />
+                <GoalSection title="Active Goals" goals={activeGoals} onEdit={g => { setEditGoal(g); setEditValue(String(g.current_value)); }} onDelete={id => setDeleteGoalId(id)} />
               )}
 
               {/* Completed Goals */}
