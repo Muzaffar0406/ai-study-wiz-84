@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
 import { supabase } from "@/integrations/supabase/client";
-import { Video, Loader2, LinkIcon, Sparkles, AlertCircle } from "lucide-react";
+import { Video, Loader2, LinkIcon, Sparkles, AlertCircle, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { createFlashcardsBatch } from "@/lib/flashcards";
 
 interface SummaryResult {
   summary: string;
@@ -18,10 +20,85 @@ interface SummaryResult {
 const VideoSummarizerContent = () => {
   const { isMobile } = useLayout();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSavingFlashcards, setIsSavingFlashcards] = useState(false);
   const [result, setResult] = useState<SummaryResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const parseFlashcards = (summary: string): Array<{ front: string; back: string }> => {
+    const flashcards: Array<{ front: string; back: string }> = [];
+    
+    // Find the flashcards section
+    const flashcardsMatch = summary.match(/## 🧩 Flashcards([\s\S]*?)(?=##|$)/);
+    if (!flashcardsMatch) return flashcards;
+    
+    const flashcardsSection = flashcardsMatch[1];
+    
+    // Match Q: ... A: ... patterns
+    const regex = /(?:\*\*)?Q(?:uestion)?(?:\*\*)?:\s*(.+?)(?:\n|\r\n)(?:\*\*)?A(?:nswer)?(?:\*\*)?:\s*(.+?)(?=(?:\n|\r\n)(?:\*\*)?Q|$)/gis;
+    let match;
+    
+    while ((match = regex.exec(flashcardsSection)) !== null) {
+      const question = match[1].trim();
+      const answer = match[2].trim();
+      if (question && answer) {
+        flashcards.push({ front: question, back: answer });
+      }
+    }
+    
+    return flashcards;
+  };
+
+  const handleSaveFlashcards = async () => {
+    if (!result || !user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to save flashcards",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSavingFlashcards(true);
+
+    try {
+      const flashcards = parseFlashcards(result.summary);
+      
+      if (flashcards.length === 0) {
+        toast({
+          title: "No flashcards found",
+          description: "Could not extract flashcards from the summary",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const cardsToSave = flashcards.map(card => ({
+        user_id: user.id,
+        front: card.front,
+        back: card.back,
+        note_id: null,
+      }));
+
+      await createFlashcardsBatch(cardsToSave);
+
+      toast({
+        title: "Flashcards saved!",
+        description: `Successfully saved ${flashcards.length} flashcard${flashcards.length === 1 ? '' : 's'} to your collection`,
+      });
+    } catch (err: any) {
+      console.error("Error saving flashcards:", err);
+      toast({
+        title: "Failed to save flashcards",
+        description: err?.message || "An error occurred while saving flashcards",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingFlashcards(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,18 +222,40 @@ const VideoSummarizerContent = () => {
           {result && !isLoading && (
             <Card className="border-border bg-card shadow-[var(--shadow-soft)] overflow-hidden animate-fade-in">
               <div className="p-4 bg-muted/30 border-b border-border">
-                <h2 className="font-semibold text-foreground truncate">{result.title}</h2>
-                {result.description && (
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{result.description}</p>
-                )}
-                <a
-                  href={result.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-primary hover:underline mt-1 inline-block"
-                >
-                  {result.url}
-                </a>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="font-semibold text-foreground truncate">{result.title}</h2>
+                    {result.description && (
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{result.description}</p>
+                    )}
+                    <a
+                      href={result.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-primary hover:underline mt-1 inline-block"
+                    >
+                      {result.url}
+                    </a>
+                  </div>
+                  <Button
+                    onClick={handleSaveFlashcards}
+                    disabled={isSavingFlashcards}
+                    size="sm"
+                    className="gap-2 flex-shrink-0"
+                  >
+                    {isSavingFlashcards ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        Save Flashcards
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
               <div className="p-6">
                 <ChatMarkdown content={result.summary} />
