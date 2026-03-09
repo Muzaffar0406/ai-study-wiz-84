@@ -76,9 +76,7 @@ const CalendarContent = () => {
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
-    fetchProfile(user.id).then(setProfile).catch(console.error);
-    loadData();
+    if (user) loadData();
   }, [user, loadData]);
 
   const events: CalendarEvent[] = useMemo(() => {
