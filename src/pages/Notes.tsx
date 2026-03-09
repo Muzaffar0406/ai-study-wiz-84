@@ -1,16 +1,11 @@
 import { useState, useEffect } from "react";
-import { useSidebarState } from "@/hooks/useSidebarState";
-import { useAuth } from "@/hooks/useAuth";
-import { AppSidebar } from "@/components/AppSidebar";
-import { AIChatBot } from "@/components/AIChatBot";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { AppLayout, PageHeader, PageContent, useLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchProfile } from "@/lib/database";
 import { createFlashcardsBatch } from "@/lib/flashcards";
 import ReactMarkdown from "react-markdown";
 import {
