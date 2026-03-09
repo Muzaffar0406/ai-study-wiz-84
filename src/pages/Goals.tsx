@@ -58,9 +58,7 @@ const GoalsContent = () => {
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
-    loadData();
-    fetchProfile(user.id).then(setProfile).catch(console.error);
+    if (user) loadData();
   }, [user, loadData]);
 
   const handleCreate = async () => {
