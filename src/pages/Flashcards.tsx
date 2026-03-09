@@ -402,6 +402,13 @@ const Flashcards = () => {
         </div>
       </main>
 
+      <DeleteConfirmDialog
+        open={!!deleteCardId}
+        onOpenChange={(open) => { if (!open) setDeleteCardId(null); }}
+        onConfirm={() => { if (deleteCardId) { handleDeleteCard(deleteCardId); setDeleteCardId(null); } }}
+        title="Delete flashcard?"
+        description="This flashcard and its review history will be permanently deleted."
+      />
       <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );

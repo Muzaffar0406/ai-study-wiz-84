@@ -51,6 +51,7 @@ const Goals = () => {
   // Update dialog
   const [editGoal, setEditGoal] = useState<Goal | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [deleteGoalId, setDeleteGoalId] = useState<string | null>(null);
 
   const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Student";
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
