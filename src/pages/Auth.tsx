@@ -17,6 +17,10 @@ export default function Auth() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (searchParams.get("mode") === "signup") setIsLogin(false);
+  }, [searchParams]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
