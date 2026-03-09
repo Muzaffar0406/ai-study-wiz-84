@@ -20,10 +20,85 @@ interface SummaryResult {
 const VideoSummarizerContent = () => {
   const { isMobile } = useLayout();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSavingFlashcards, setIsSavingFlashcards] = useState(false);
   const [result, setResult] = useState<SummaryResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const parseFlashcards = (summary: string): Array<{ front: string; back: string }> => {
+    const flashcards: Array<{ front: string; back: string }> = [];
+    
+    // Find the flashcards section
+    const flashcardsMatch = summary.match(/## 🧩 Flashcards([\s\S]*?)(?=##|$)/);
+    if (!flashcardsMatch) return flashcards;
+    
+    const flashcardsSection = flashcardsMatch[1];
+    
+    // Match Q: ... A: ... patterns
+    const regex = /(?:\*\*)?Q(?:uestion)?(?:\*\*)?:\s*(.+?)(?:\n|\r\n)(?:\*\*)?A(?:nswer)?(?:\*\*)?:\s*(.+?)(?=(?:\n|\r\n)(?:\*\*)?Q|$)/gis;
+    let match;
+    
+    while ((match = regex.exec(flashcardsSection)) !== null) {
+      const question = match[1].trim();
+      const answer = match[2].trim();
+      if (question && answer) {
+        flashcards.push({ front: question, back: answer });
+      }
+    }
+    
+    return flashcards;
+  };
+
+  const handleSaveFlashcards = async () => {
+    if (!result || !user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to save flashcards",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSavingFlashcards(true);
+
+    try {
+      const flashcards = parseFlashcards(result.summary);
+      
+      if (flashcards.length === 0) {
+        toast({
+          title: "No flashcards found",
+          description: "Could not extract flashcards from the summary",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const cardsToSave = flashcards.map(card => ({
+        user_id: user.id,
+        front: card.front,
+        back: card.back,
+        note_id: null,
+      }));
+
+      await createFlashcardsBatch(cardsToSave);
+
+      toast({
+        title: "Flashcards saved!",
+        description: `Successfully saved ${flashcards.length} flashcard${flashcards.length === 1 ? '' : 's'} to your collection`,
+      });
+    } catch (err: any) {
+      console.error("Error saving flashcards:", err);
+      toast({
+        title: "Failed to save flashcards",
+        description: err?.message || "An error occurred while saving flashcards",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingFlashcards(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
