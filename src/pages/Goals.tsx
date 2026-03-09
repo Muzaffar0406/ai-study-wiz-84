@@ -1,10 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useSidebarState } from "@/hooks/useSidebarState";
-import { useAuth } from "@/hooks/useAuth";
-import { AppSidebar } from "@/components/AppSidebar";
-import { AIChatBot } from "@/components/AIChatBot";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { fetchProfile } from "@/lib/database";
+import { AppLayout, PageHeader, PageContent, useLayout } from "@/components/AppLayout";
 import {
   fetchGoals, createGoal, updateGoalProgress, deleteGoal,
   getGoalProgress, isGoalExpired, isGoalComplete, syncGoalProgress,
