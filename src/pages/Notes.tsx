@@ -378,7 +378,7 @@ const Notes = () => {
                         size="sm"
                         variant="ghost"
                         className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 flex-shrink-0"
-                        onClick={() => handleDelete(note.id)}
+                        onClick={() => setDeleteNoteId(note.id)}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
