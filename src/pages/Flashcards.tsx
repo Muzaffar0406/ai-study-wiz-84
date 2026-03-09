@@ -381,8 +381,7 @@ const FlashcardsContent = () => {
               )}
             </>
           ) : null}
-        </div>
-      </main>
+      </PageContent>
 
       <DeleteConfirmDialog
         open={!!deleteCardId}
@@ -391,9 +390,14 @@ const FlashcardsContent = () => {
         title="Delete flashcard?"
         description="This flashcard and its review history will be permanently deleted."
       />
-      <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
-    </div>
+    </>
   );
 };
+
+const Flashcards = () => (
+  <AppLayout>
+    <FlashcardsContent />
+  </AppLayout>
+);
 
 export default Flashcards;
