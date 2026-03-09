@@ -48,7 +48,7 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
     const btn = (
       <button
         onClick={() => handleNav(item)}
-        className={`sidebar-item w-full ${isActive ? 'sidebar-item-active' : 'sidebar-item-inactive'} ${collapsed && !isMobile ? 'justify-center px-2' : ''}`}
+        className={`sidebar-item w-full ${isActive ? 'sidebar-item-active' : 'sidebar-item-inactive'} ${collapsed && !isMobile ? 'justify-center px-2' : ''} ${isMobile ? 'min-h-[44px] text-base' : ''} active:scale-[0.97] transition-transform`}
       >
         <item.icon className="h-[18px] w-[18px] flex-shrink-0" />
         {(!collapsed || isMobile) && <span>{item.label}</span>}
