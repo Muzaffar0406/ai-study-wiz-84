@@ -206,8 +206,7 @@ const GoalsContent = () => {
               )}
             </>
           )}
-        </div>
-      </main>
+      </PageContent>
 
       {/* Edit Progress Dialog */}
       <Dialog open={!!editGoal} onOpenChange={open => { if (!open) setEditGoal(null); }}>
@@ -233,10 +232,15 @@ const GoalsContent = () => {
         title="Delete goal?"
         description="This goal and its progress will be permanently deleted."
       />
-      <AIChatBot open={chatOpen} onOpenChange={setChatOpen} />
-    </div>
+    </>
   );
 };
+
+const Goals = () => (
+  <AppLayout>
+    <GoalsContent />
+  </AppLayout>
+);
 
 const SUMMARY_STYLES: Record<string, { bg: string; text: string }> = {
   primary: { bg: "bg-primary/10", text: "text-primary" },
