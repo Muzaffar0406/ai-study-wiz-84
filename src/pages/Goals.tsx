@@ -115,11 +115,8 @@ const GoalsContent = () => {
     : 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppSidebar displayName={displayName} avatarUrl={avatarUrl} onAIClick={() => setChatOpen(true)} />
-
-      <main className={`min-h-screen transition-all duration-300 ${isMobile ? "" : collapsed ? "ml-[68px]" : "ml-[240px]"}`}>
-        <header className={`sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 py-4 ${isMobile ? "px-4 pt-14" : "px-8"}`}>
+    <>
+      <PageHeader>
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
               <h1 className={`${isMobile ? "text-xl" : "text-2xl"} font-bold text-foreground flex items-center gap-2`}>
