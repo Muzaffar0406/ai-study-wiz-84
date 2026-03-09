@@ -16,6 +16,7 @@ import Analytics from "./pages/Analytics";
 import Flashcards from "./pages/Flashcards";
 import Goals from "./pages/Goals";
 import Assistant from "./pages/Assistant";
+import VideoSummarizer from "./pages/VideoSummarizer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
               <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
               <Route path="/notes" element={<ProtectedRoute><Notes /></ProtectedRoute>} />
               <Route path="/assistant" element={<ProtectedRoute><Assistant /></ProtectedRoute>} />
+              <Route path="/video-summarizer" element={<ProtectedRoute><VideoSummarizer /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
               <Route path="*" element={<NotFound />} />

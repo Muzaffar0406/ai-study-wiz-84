@@ -5,7 +5,7 @@ import { useSidebarState } from "@/hooks/useSidebarState";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { Home, BookOpen, CheckSquare, Bot, Settings, LogOut, Menu, X, FileText, CalendarDays, BarChart3, Layers, Target } from "lucide-react";
+import { Home, BookOpen, CheckSquare, Bot, Settings, LogOut, Menu, X, FileText, CalendarDays, BarChart3, Layers, Target, Video } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AppSidebarProps {
@@ -33,6 +33,7 @@ export function AppSidebar({ displayName, avatarUrl, onAIClick }: AppSidebarProp
     { icon: Target, label: "Goals", path: "/goals" },
     { icon: BarChart3, label: "Analytics", path: "/analytics" },
     { icon: Bot, label: "AI Assistant", path: "/assistant" },
+    { icon: Video, label: "Video Summary", path: "/video-summarizer" },
     { icon: Settings, label: "Settings", path: "/profile" },
   ];
 
