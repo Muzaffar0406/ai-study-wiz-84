@@ -6,13 +6,10 @@ import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 
-import { useSidebarState } from "@/hooks/useSidebarState";
-import { useAuth } from "@/hooks/useAuth";
-import { AppSidebar } from "@/components/AppSidebar";
-import { AIChatBot } from "@/components/AIChatBot";
+import { AppLayout, PageHeader, PageContent, useLayout } from "@/components/AppLayout";
 import { AddTaskDialog } from "@/components/AddTaskDialog";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { fetchTasks, fetchProfile, toggleTaskCompleted, deleteTask } from "@/lib/database";
+import { fetchTasks, toggleTaskCompleted, deleteTask } from "@/lib/database";
+import { supabase } from "@/integrations/supabase/client";
 import { supabase } from "@/integrations/supabase/client";
 import { CalendarDays, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
